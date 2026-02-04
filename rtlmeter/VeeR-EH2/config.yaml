@@ -1,5 +1,41 @@
 name: VeeR-EH2
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Western Digital VeeR EH2 — dual-threaded RISC-V RV32IMC core (CHIPS Alliance)"
+top_module: eh2_veer_wrapper
+upstream:
+  repository: https://github.com/chipsalliance/Cores-VeeR-EH2.git
+  revision: aa502ec1594246d305bd0d95d69441b55c41c22e
+  license: Apache-2.0
+configurations:
+  default:
+    include_dirs:
+      - rtl/default
+  hiperf:
+    include_dirs:
+      - rtl/hiperf
+  asic:
+    include_dirs:
+      - rtl/asic
+tests:
+  hello:
+    program: programs/hello.hex
+    description: "Hello World — basic sanity test"
+  dhrystone:
+    program: programs/dhry.hex
+    description: "Dhrystone benchmark (single-threaded)"
+  dhrystone_mt:
+    program: programs/dhry_mt.hex
+    description: "Dhrystone benchmark (multi-threaded)"
+  coremark:
+    program: programs/cmark.hex
+    description: "CoreMark benchmark (single-threaded)"
+  coremark_mt:
+    program: programs/cmark_mt.hex
+    description: "CoreMark benchmark (multi-threaded)"
+  coremark_iccm:
+    program: programs/cmark_iccm.hex
+    description: "CoreMark benchmark (ICCM execution, single-threaded)"
+  coremark_iccm_mt:
+    program: programs/cmark_iccm_mt.hex
+    description: "CoreMark benchmark (ICCM execution, multi-threaded)"
