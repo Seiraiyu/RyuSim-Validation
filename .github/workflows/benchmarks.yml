@@ -40,8 +40,8 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Install Verilator
-        run: sudo apt-get update && sudo apt-get install -y verilator
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build clang verilator
 
       - name: Run benchmarks
         run: python run_benchmarks.py --all --output results/benchmarks-${{ matrix.os }}.json
