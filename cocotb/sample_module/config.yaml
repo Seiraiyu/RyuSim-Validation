@@ -1,5 +1,5 @@
 name: sample_module
 source: cocotb
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Feature-rich sample with structs, generates, arrays, and mixed combinational/sequential logic"
+top_module: sample_module
