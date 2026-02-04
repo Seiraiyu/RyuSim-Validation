@@ -40,7 +40,7 @@ def discover_designs():
     return designs
 
 
-def run_benchmark(design_path, test_name=None, compare_verilator=False, verbose=False):
+def run_benchmark(design_path, test_name=None, compare_verilator=False):
     """Run benchmark for a single design.
 
     Runs `make` in the design directory (cocotb with SIM=ryusim), captures
@@ -120,9 +120,13 @@ def run_benchmark(design_path, test_name=None, compare_verilator=False, verbose=
         "design": design_path.name,
         "path": str(design_path),
         "test": test_name,
+        "top_module": config.get("top_module"),
+        "description": config.get("description"),
         "ryusim": {
-            "compile": {"elapsed": total_elapsed, "status": ryusim_status},
-            "execute": {"elapsed": total_elapsed, "status": ryusim_status},
+            "elapsed": total_elapsed,
+            "status": ryusim_status,
+            "compile": None,
+            "execute": None,
         },
         "status": ryusim_status,
         "duration": total_elapsed,
@@ -192,6 +196,8 @@ def main():
             sys.exit(1)
 
     ryusim_version = get_ryusim_version()
+    if args.ryusim_version and ryusim_version and args.ryusim_version != ryusim_version:
+        print(f"Warning: expected ryusim {args.ryusim_version}, got {ryusim_version}", file=sys.stderr)
     timestamp = datetime.now(timezone.utc).isoformat()
 
     results = []
@@ -200,7 +206,6 @@ def main():
             design,
             test_name=args.test,
             compare_verilator=args.compare_verilator,
-            verbose=args.verbose,
         )
         results.append(result)
         if args.verbose:
@@ -226,6 +231,9 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(summary, indent=2) + "\n")
         print(f"Results written to {args.output}", file=sys.stderr)
+
+    if summary["failed"] > 0 or summary.get("error", 0) > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

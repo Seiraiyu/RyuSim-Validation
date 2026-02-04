@@ -60,7 +60,7 @@ def discover_tests(category=None):
     return tests
 
 
-def run_test(test_path, level=1, verbose=False):
+def run_test(test_path, level=1):
     """Run a single SV construct test.
 
     For supported tests: runs `make` in the test directory (cocotb with SIM=ryusim).
@@ -91,7 +91,7 @@ def run_test(test_path, level=1, verbose=False):
         }
 
     top_module = config.get("top_module", "dut")
-    is_unsupported = category == "unsupported"
+    is_unsupported = category == "unsupported" or config.get("expect_fail", False)
 
     if is_unsupported:
         # Unsupported tests: ryusim compile should FAIL
@@ -207,7 +207,7 @@ def run_test(test_path, level=1, verbose=False):
     # Level 2: VCD comparison against golden reference
     if level >= 2 and status == "passed":
         vcd_files = list(test_path.glob("**/*.vcd"))
-        golden_dir = test_path / "golden"
+        golden_dir = Path("golden") / test_path.relative_to(TESTS_DIR)
         golden_vcds = list(golden_dir.glob("*.vcd")) if golden_dir.is_dir() else []
 
         if golden_vcds and vcd_files:
@@ -271,11 +271,13 @@ def main():
         tests = tests[: args.limit]
 
     ryusim_version = get_ryusim_version()
+    if args.ryusim_version and ryusim_version and args.ryusim_version != ryusim_version:
+        print(f"Warning: expected ryusim {args.ryusim_version}, got {ryusim_version}", file=sys.stderr)
     timestamp = datetime.now(timezone.utc).isoformat()
 
     results = []
     for test in tests:
-        result = run_test(test, level=args.level, verbose=args.verbose)
+        result = run_test(test, level=args.level)
         results.append(result)
         if args.verbose:
             print(
@@ -312,6 +314,9 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(summary, indent=2) + "\n")
         print(f"Results written to {args.output}", file=sys.stderr)
+
+    if summary["failed"] > 0 or summary.get("error", 0) > 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
