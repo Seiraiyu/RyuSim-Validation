@@ -1,0 +1,7 @@
+name: packed_array
+category: combinational
+subcategory: arrays
+description: "Packed array element selection via index"
+top_module: packed_array
+ieee_section: "7.4.1"
+level: 1

@@ -1,0 +1,7 @@
+name: enum_methods
+category: combinational
+subcategory: enums
+description: "Enumeration next-value and first-value computation"
+top_module: enum_methods
+ieee_section: "6.19.5"
+level: 1

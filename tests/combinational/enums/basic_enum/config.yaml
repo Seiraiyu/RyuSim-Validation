@@ -1,0 +1,7 @@
+name: basic_enum
+category: combinational
+subcategory: enums
+description: "Basic enumeration with state-based output mapping"
+top_module: basic_enum
+ieee_section: "6.19"
+level: 1

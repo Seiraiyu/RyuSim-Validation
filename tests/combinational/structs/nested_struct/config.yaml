@@ -1,0 +1,7 @@
+name: nested_struct
+category: combinational
+subcategory: structs
+description: "Nested packed struct field extraction"
+top_module: nested_struct
+ieee_section: "7.2.1"
+level: 1

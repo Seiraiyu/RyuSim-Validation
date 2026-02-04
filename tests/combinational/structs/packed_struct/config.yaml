@@ -1,0 +1,7 @@
+name: packed_struct
+category: combinational
+subcategory: structs
+description: "Packed struct field extraction from raw bits"
+top_module: packed_struct
+ieee_section: "7.2.1"
+level: 1

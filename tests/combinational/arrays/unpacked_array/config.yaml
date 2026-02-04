@@ -1,0 +1,7 @@
+name: unpacked_array
+category: combinational
+subcategory: arrays
+description: "Unpacked array with write and read access"
+top_module: unpacked_array
+ieee_section: "7.4.2"
+level: 1
