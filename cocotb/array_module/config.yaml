@@ -1,5 +1,5 @@
 name: array_module
 source: cocotb
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Array types with structs, parameters, ascending/descending ranges, and generate blocks"
+top_module: array_module
