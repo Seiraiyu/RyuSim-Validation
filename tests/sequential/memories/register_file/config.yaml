@@ -1,0 +1,7 @@
+name: register_file
+category: sequential
+subcategory: memories
+description: "Parameterized register file with synchronous write and asynchronous read"
+top_module: register_file
+ieee_section: "7.4.2"
+level: 1

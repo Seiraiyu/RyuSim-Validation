@@ -1,0 +1,7 @@
+name: moore_fsm
+category: sequential
+subcategory: fsm
+description: "3-state Moore finite state machine"
+top_module: moore_fsm
+ieee_section: "9.4.2"
+level: 1

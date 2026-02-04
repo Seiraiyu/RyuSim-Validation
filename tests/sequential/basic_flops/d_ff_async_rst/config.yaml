@@ -1,0 +1,7 @@
+name: d_ff_async_rst
+category: sequential
+subcategory: basic_flops
+description: "D flip-flop with asynchronous active-low reset"
+top_module: d_ff_async_rst
+ieee_section: "9.4.2"
+level: 1

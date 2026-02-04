@@ -1,0 +1,7 @@
+name: enabled_ff
+category: sequential
+subcategory: basic_flops
+description: "D flip-flop with synchronous reset and clock enable"
+top_module: enabled_ff
+ieee_section: "9.4.2"
+level: 1
