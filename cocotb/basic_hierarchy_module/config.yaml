@@ -1,5 +1,5 @@
 name: basic_hierarchy_module
 source: cocotb
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Basic module hierarchy with counter and two sub-modules (add +2 and +5)"
+top_module: basic_hierarchy_module
