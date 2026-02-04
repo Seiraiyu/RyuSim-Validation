@@ -3,7 +3,7 @@ TOPLEVEL_LANG = verilog
 SIM = ryusim
 
 VERILOG_SOURCES = $(wildcard rtl/*.sv) $(wildcard rtl/*.v)
-TOPLEVEL = TODO_top_module
-MODULE = test_TODO_module
+TOPLEVEL = uart2bus_top
+MODULE = test_uart2bus
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
