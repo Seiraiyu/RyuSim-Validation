@@ -1,5 +1,5 @@
 name: Example
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "RTLMeter example test design — counter to 1M with milestone flags"
+top_module: top
