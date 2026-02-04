@@ -1,0 +1,7 @@
+name: add_sub
+category: combinational
+subcategory: operators
+description: "Arithmetic addition and subtraction operators"
+top_module: add_sub
+ieee_section: "11.4.3"
+level: 1
