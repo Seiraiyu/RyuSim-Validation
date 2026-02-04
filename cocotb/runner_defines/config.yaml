@@ -1,5 +1,5 @@
 name: runner_defines
 source: cocotb
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Parameterized shift register pipeline (upstream was empty placeholder)"
+top_module: runner_defines
