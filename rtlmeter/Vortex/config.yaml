@@ -1,5 +1,47 @@
 name: Vortex
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Vortex RISC-V GPGPU — open-source GPU from Georgia Tech supporting OpenCL"
+top_module: Vortex
+upstream:
+  repositories:
+    - url: https://github.com/vortexgpgpu/vortex.git
+      revision: e80ee2c81909ecf118fa1b8842613af4b26ab4a1
+      license: Apache-2.0
+    - url: https://github.com/pulp-platform/fpnew.git
+      revision: 79e453139072df42c9ec8f697132ba485d74e23d
+      license: SHL-0.51
+compile:
+  defines:
+    SIMULATION: 1
+    XLEN_32: 1
+    FPU_FPNEW: 1
+    NDEBUG: 1
+    NUM_CLUSTERS: 1
+    NUM_CORES: 1
+    NUM_WARPS: 4
+    NUM_THREADS: 4
+  include_dirs:
+    - rtl
+    - rtl/fpnew
+configurations:
+  mini:
+    defines:
+      NUM_CLUSTERS: 1
+      NUM_CORES: 1
+      NUM_WARPS: 4
+      NUM_THREADS: 4
+  sane:
+    defines:
+      NUM_CLUSTERS: 2
+      NUM_CORES: 4
+      NUM_WARPS: 4
+      NUM_THREADS: 8
+notes:
+  initial_blocks_removed: 2
+  files_modified:
+    - "rtl/fpnew/lzc.sv — removed initial begin assertion (non-synthesizable)"
+    - "rtl/fpnew/rr_arb_tree.sv — removed initial begin assertions and concurrent SVA (non-synthesizable)"
+  excluded_files:
+    - "tb.sv — upstream testbench using initial blocks, #delays, DPI-C, $readmemh"
+    - "dpi/memory.cpp — DPI-C memory model (replaced by cocotb testbench)"
