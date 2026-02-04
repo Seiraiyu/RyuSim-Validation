@@ -1,5 +1,5 @@
 name: multi_dimension_array
 source: cocotb
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Multi-dimensional array passthrough with packed/unpacked arrays, structs, and a package"
+top_module: cocotb_array
