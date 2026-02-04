@@ -3,10 +3,29 @@
 
 import argparse
 import json
+import subprocess
 import sys
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 
+import yaml
+
 BENCHMARK_DIRS = [Path("rtlmeter"), Path("cocotb")]
+
+
+def get_ryusim_version():
+    """Get the installed ryusim version string."""
+    try:
+        result = subprocess.run(
+            ["ryusim", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        return result.stdout.strip() or result.stderr.strip()
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return "unknown"
 
 
 def discover_designs():
@@ -21,16 +40,126 @@ def discover_designs():
     return designs
 
 
-def run_benchmark(design_path, test_name=None, compare_verilator=False):
-    """Run benchmark for a single design. Stub — returns placeholder result."""
-    return {
+def run_benchmark(design_path, test_name=None, compare_verilator=False, verbose=False):
+    """Run benchmark for a single design.
+
+    Runs `make` in the design directory (cocotb with SIM=ryusim), captures
+    timing and exit code. Optionally runs Verilator comparison.
+
+    Returns a dict with benchmark results.
+    """
+    # Read config.yaml
+    config_file = design_path / "config.yaml"
+    try:
+        with open(config_file) as f:
+            config = yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        return {
+            "design": design_path.name,
+            "path": str(design_path),
+            "test": test_name,
+            "ryusim": {
+                "compile": {"elapsed": 0, "status": "error"},
+                "execute": {"elapsed": 0, "status": "error"},
+            },
+            "status": "error",
+            "duration": 0,
+            "stdout": "",
+            "stderr": "config.yaml not found",
+        }
+
+    # Build make command with optional test target
+    make_cmd = ["make"]
+    if test_name:
+        make_cmd.append(test_name)
+
+    # Run RyuSim benchmark via make
+    compile_start = time.perf_counter()
+    try:
+        result = subprocess.run(
+            make_cmd,
+            capture_output=True,
+            text=True,
+            cwd=str(design_path),
+            timeout=300,
+        )
+    except subprocess.TimeoutExpired:
+        elapsed = time.perf_counter() - compile_start
+        return {
+            "design": design_path.name,
+            "path": str(design_path),
+            "test": test_name,
+            "ryusim": {
+                "compile": {"elapsed": elapsed, "status": "timeout"},
+                "execute": {"elapsed": 0, "status": "skipped"},
+            },
+            "status": "error",
+            "duration": elapsed,
+            "stdout": "",
+            "stderr": "Benchmark timed out (300s)",
+        }
+    except FileNotFoundError:
+        return {
+            "design": design_path.name,
+            "path": str(design_path),
+            "test": test_name,
+            "ryusim": {
+                "compile": {"elapsed": 0, "status": "error"},
+                "execute": {"elapsed": 0, "status": "error"},
+            },
+            "status": "error",
+            "duration": 0,
+            "stdout": "",
+            "stderr": "make not found on PATH",
+        }
+
+    total_elapsed = time.perf_counter() - compile_start
+    ryusim_status = "passed" if result.returncode == 0 else "failed"
+
+    benchmark_result = {
         "design": design_path.name,
         "path": str(design_path),
         "test": test_name,
-        "compare_verilator": compare_verilator,
-        "status": "not_implemented",
-        "message": f"Benchmark runner not yet implemented for {design_path.name}",
+        "ryusim": {
+            "compile": {"elapsed": total_elapsed, "status": ryusim_status},
+            "execute": {"elapsed": total_elapsed, "status": ryusim_status},
+        },
+        "status": ryusim_status,
+        "duration": total_elapsed,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
     }
+
+    # Optional Verilator comparison
+    if compare_verilator and ryusim_status == "passed":
+        verilator_start = time.perf_counter()
+        try:
+            verilator_result = subprocess.run(
+                ["make", "SIM=verilator"],
+                capture_output=True,
+                text=True,
+                cwd=str(design_path),
+                timeout=300,
+            )
+            verilator_elapsed = time.perf_counter() - verilator_start
+            benchmark_result["verilator"] = {
+                "compile": {
+                    "elapsed": verilator_elapsed,
+                    "status": "passed" if verilator_result.returncode == 0 else "failed",
+                },
+                "execute": {
+                    "elapsed": verilator_elapsed,
+                    "status": "passed" if verilator_result.returncode == 0 else "failed",
+                },
+            }
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            verilator_elapsed = time.perf_counter() - verilator_start
+            benchmark_result["verilator"] = {
+                "compile": {"elapsed": verilator_elapsed, "status": "error"},
+                "execute": {"elapsed": 0, "status": "skipped"},
+            }
+
+    return benchmark_result
 
 
 def main():
@@ -47,6 +176,7 @@ def main():
     )
     parser.add_argument("--output", type=str, help="Output JSON file path")
     parser.add_argument("--ryusim-version", type=str, help="Expected RyuSim version")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Print per-benchmark progress to stderr")
     args = parser.parse_args()
 
     if not args.all and not args.design:
@@ -61,22 +191,31 @@ def main():
             print(f"Error: design '{args.design}' not found", file=sys.stderr)
             sys.exit(1)
 
+    ryusim_version = get_ryusim_version()
+    timestamp = datetime.now(timezone.utc).isoformat()
+
     results = []
     for design in designs:
         result = run_benchmark(
             design,
             test_name=args.test,
             compare_verilator=args.compare_verilator,
+            verbose=args.verbose,
         )
         results.append(result)
+        if args.verbose:
+            print(
+                f"  {result['design']}: {result['status']} ({result['duration']:.2f}s)",
+                file=sys.stderr,
+            )
 
     summary = {
         "total": len(results),
         "passed": sum(1 for r in results if r["status"] == "passed"),
         "failed": sum(1 for r in results if r["status"] == "failed"),
-        "not_implemented": sum(
-            1 for r in results if r["status"] == "not_implemented"
-        ),
+        "error": sum(1 for r in results if r["status"] == "error"),
+        "ryusim_version": ryusim_version,
+        "timestamp": timestamp,
         "results": results,
     }
 
