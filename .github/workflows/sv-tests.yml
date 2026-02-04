@@ -1,0 +1,61 @@
+name: SV Construct Tests
+
+on:
+  push:
+    paths:
+      - "tests/**"
+  pull_request:
+    paths:
+      - "tests/**"
+  workflow_dispatch:
+    inputs:
+      ryusim_version:
+        description: "RyuSim version to install"
+        type: string
+        default: "latest"
+      category:
+        description: "Test category to run"
+        type: string
+        default: "all"
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        python-version: ["3.11"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install RyuSim
+        run: bash setup_ryusim.sh
+        env:
+          RYUSIM_VERSION: ${{ inputs.ryusim_version }}
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Verilator
+        run: sudo apt-get update && sudo apt-get install -y verilator
+
+      - name: Run SV construct tests
+        run: |
+          if [ "${{ inputs.category }}" = "all" ] || [ -z "${{ inputs.category }}" ]; then
+            python run_tests.py --all --level 1 --output results/sv-tests-${{ matrix.os }}.json
+          else
+            python run_tests.py --category ${{ inputs.category }} --level 1 --output results/sv-tests-${{ matrix.os }}.json
+          fi
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: sv-test-results-${{ matrix.os }}
+          path: results/
+          retention-days: 30

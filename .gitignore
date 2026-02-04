@@ -1,3 +1,6 @@
+# Upstream repos (cloned for porting)
+.upstream/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -205,3 +208,16 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# RyuSim / cocotb build artifacts
+**/sim_build/
+**/obj_dir/
+**/results.xml
+
+# Test results (keep directory structure)
+results/*.json
+!results/.gitkeep
+
+# VCD traces (keep golden references)
+**/*.vcd
+!golden/**/*.vcd
