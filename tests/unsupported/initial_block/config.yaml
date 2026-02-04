@@ -1,0 +1,6 @@
+name: initial_block
+category: unsupported
+subcategory: initial_block
+description: "Verify ryusim rejects initial blocks"
+top_module: bad_initial
+expect_fail: true
