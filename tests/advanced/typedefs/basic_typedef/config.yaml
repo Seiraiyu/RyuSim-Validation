@@ -1,0 +1,7 @@
+name: basic_typedef
+category: advanced
+subcategory: typedefs
+description: "User-defined typedef for byte-level splitting"
+top_module: basic_typedef
+ieee_section: "6.18"
+level: 1

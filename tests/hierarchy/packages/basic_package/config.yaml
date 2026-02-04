@@ -1,0 +1,7 @@
+name: basic_package
+category: hierarchy
+subcategory: packages
+description: "Package with typedef and localparam used by module"
+top_module: basic_package
+ieee_section: "26.2"
+level: 1

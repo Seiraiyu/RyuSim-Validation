@@ -1,0 +1,7 @@
+name: param_override
+category: hierarchy
+subcategory: parameters
+description: "Parameter override on module instantiation"
+top_module: param_override
+ieee_section: "23.10"
+level: 1

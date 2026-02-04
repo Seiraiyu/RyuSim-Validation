@@ -1,0 +1,7 @@
+name: immediate_assert
+category: advanced
+subcategory: assertions
+description: "Immediate assertion in synthesis context"
+top_module: immediate_assert
+ieee_section: "16.3"
+level: 1

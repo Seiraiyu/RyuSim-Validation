@@ -1,0 +1,7 @@
+name: basic_inst
+category: hierarchy
+subcategory: module_instantiation
+description: "Basic module instantiation with port connections"
+top_module: basic_inst
+ieee_section: "23.3.2"
+level: 1
