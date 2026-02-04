@@ -35,7 +35,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install RyuSim
-        run: bash setup_ryusim.sh
+        run: sudo bash setup_ryusim.sh
         env:
           RYUSIM_VERSION: ${{ inputs.ryusim_version }}
 
