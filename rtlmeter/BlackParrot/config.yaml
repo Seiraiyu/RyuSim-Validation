@@ -1,5 +1,50 @@
 name: BlackParrot
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "BlackParrot — open-source multicore RISC-V processor from University of Washington"
+top_module: wrapper
+upstream:
+  repositories:
+    - url: https://github.com/black-parrot/black-parrot.git
+      revision: b57d05165bb44a062aaa5b9675af928f847f2fee
+      license: BSD-3-Clause
+    - url: https://github.com/bespoke-silicon-group/basejump_stl.git
+      revision: 4db526e68d690c7e4a816c18675328dafb65f394
+      license: BSD-3-Clause
+    - url: https://github.com/bsg-external/HardFloat.git
+      revision: 5b7d5fe2df7e297b5ba095b3eb8a9517dc2e9d88
+      license: BSD-3-Clause
+compile:
+  defines:
+    den2048Mb: 1
+    sg5: 1
+    x16: 1
+    FULL_MEM: 1
+    BP_CFG_FLOWVAR: e_bp_multicore_1_cfg
+    BSG_HIDE_FROM_SYNTHESIS: 1
+  include_dirs:
+    - rtl/basejump_stl
+    - rtl/bp
+    - rtl/hardfloat
+configurations:
+  1x1:
+    defines:
+      BP_CFG_FLOWVAR: e_bp_multicore_1_cfg
+  2x2:
+    defines:
+      BP_CFG_FLOWVAR: e_bp_multicore_4_cfg
+  4x4:
+    defines:
+      BP_CFG_FLOWVAR: e_bp_multicore_16_cfg
+notes:
+  initial_blocks_removed: 2
+  files_modified:
+    - "rtl/basejump_stl/bsg_idiv_iterative.sv — removed initial begin assertion (non-synthesizable)"
+    - "rtl/basejump_stl/bsg_cache_to_axi.sv — removed initial begin assertion (non-synthesizable)"
+  excluded_files:
+    - "bp/testbench.sv — upstream testbench using bit type, nonsynth modules"
+    - "bp/bp_nonsynth_*.sv — 7 non-synthesizable simulation modules"
+    - "bp/bp_me_nonsynth_pkg.sv — non-synthesizable package"
+    - "basejump_stl/bsg_nonsynth_*.sv — 4 non-synthesizable BSG modules"
+    - "basejump_stl/bsg_fsb_node_trace_replay.v — trace replay (non-synthesizable)"
+    - "basejump_stl/bsg_tag_trace_replay.sv — trace replay (non-synthesizable)"
