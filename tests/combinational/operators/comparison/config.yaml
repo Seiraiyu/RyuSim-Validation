@@ -1,0 +1,7 @@
+name: comparison
+category: combinational
+subcategory: operators
+description: "Equality and relational comparison operators"
+top_module: comparison
+ieee_section: "11.4.4"
+level: 1

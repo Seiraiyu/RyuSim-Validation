@@ -1,0 +1,7 @@
+name: reduction
+category: combinational
+subcategory: operators
+description: "Reduction AND, OR, and XOR operators"
+top_module: reduction
+ieee_section: "11.4.9"
+level: 1

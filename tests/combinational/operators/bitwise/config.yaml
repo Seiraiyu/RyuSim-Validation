@@ -1,0 +1,7 @@
+name: bitwise
+category: combinational
+subcategory: operators
+description: "Bitwise AND, OR, XOR, and NOT operators"
+top_module: bitwise
+ieee_section: "11.4.5"
+level: 1

@@ -1,0 +1,7 @@
+name: logical
+category: combinational
+subcategory: operators
+description: "Logical AND, OR, and NOT operators"
+top_module: logical
+ieee_section: "11.4.7"
+level: 1

@@ -1,0 +1,7 @@
+name: shift
+category: combinational
+subcategory: operators
+description: "Logical and arithmetic shift operators"
+top_module: shift
+ieee_section: "11.4.10"
+level: 1

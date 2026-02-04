@@ -1,0 +1,7 @@
+name: ternary
+category: combinational
+subcategory: operators
+description: "Conditional (ternary) operator"
+top_module: ternary
+ieee_section: "11.4.11"
+level: 1
