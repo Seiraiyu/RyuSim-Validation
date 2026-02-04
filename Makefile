@@ -20,16 +20,16 @@ install-ryusim:
 	bash setup_ryusim.sh
 
 benchmarks:
-	python run_benchmarks.py --all
+	python3 run_benchmarks.py --all
 
 tests:
-	python run_tests.py --all
+	python3 run_tests.py --all
 
 all: benchmarks tests
 
 check:
-	python run_benchmarks.py --help > /dev/null
-	python run_tests.py --help > /dev/null
+	python3 run_benchmarks.py --help > /dev/null
+	python3 run_tests.py --help > /dev/null
 	@echo "All checks passed."
 
 clean:
