@@ -1,5 +1,32 @@
 name: VeeR-EH1
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Western Digital VeeR EH1 — first-generation RISC-V RV32IMC core (CHIPS Alliance)"
+top_module: veer_wrapper
+upstream:
+  repository: https://github.com/chipsalliance/Cores-VeeR-EH1.git
+  revision: 915fb34a5b38ef14c5d5c05431765ad8b912bc34
+  license: Apache-2.0
+configurations:
+  default:
+    include_dirs:
+      - rtl/default
+  hiperf:
+    include_dirs:
+      - rtl/hiperf
+  asic:
+    include_dirs:
+      - rtl/asic
+tests:
+  hello:
+    program: programs/hello.hex
+    description: "Hello World — basic sanity test"
+  dhrystone:
+    program: programs/dhry.hex
+    description: "Dhrystone benchmark"
+  coremark:
+    program: programs/cmark.hex
+    description: "CoreMark benchmark"
+  coremark_iccm:
+    program: programs/cmark_iccm.hex
+    description: "CoreMark benchmark (ICCM execution)"
