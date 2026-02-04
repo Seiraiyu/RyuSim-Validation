@@ -1,5 +1,19 @@
 name: XuanTie-C910
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "T-Head XuanTie C910 -- high-performance RISC-V RV64GC multi-issue application core (Alibaba T-Head)"
+top_module: soc
+upstream:
+  repository: https://github.com/XUANTIE-RV/openc910.git
+  revision: b91c90914c19f114d35c8f6b73408eb241ed847c
+  license: Apache-2.0
+tests:
+  hello:
+    program: programs/hello.hex
+    description: "Hello World -- basic sanity test"
+  cmark:
+    program: programs/cmark.hex
+    description: "CoreMark benchmark"
+  memcpy:
+    program: programs/memcpy.hex
+    description: "Memory copy benchmark"

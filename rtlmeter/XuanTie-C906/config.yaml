@@ -1,5 +1,19 @@
 name: XuanTie-C906
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "T-Head XuanTie C906 -- mid-range RISC-V RV64GC application core (Alibaba T-Head)"
+top_module: soc
+upstream:
+  repository: https://github.com/XUANTIE-RV/openc906.git
+  revision: b0c06eb1f8b3bae663bd8b87eac89ff48e68a57f
+  license: Apache-2.0
+tests:
+  hello:
+    program: programs/hello.hex
+    description: "Hello World -- basic sanity test"
+  cmark:
+    program: programs/cmark.hex
+    description: "CoreMark benchmark"
+  memcpy:
+    program: programs/memcpy.hex
+    description: "Memory copy benchmark"
