@@ -3,12 +3,12 @@ name: Benchmarks
 on:
   push:
     paths:
-      - "rtlmeter/**"
-      - "cocotb/**"
+      - "rtlmeter_tests/**"
+      - "cocotb_tests/**"
   pull_request:
     paths:
-      - "rtlmeter/**"
-      - "cocotb/**"
+      - "rtlmeter_tests/**"
+      - "cocotb_tests/**"
   workflow_dispatch:
     inputs:
       ryusim_version:

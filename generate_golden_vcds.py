@@ -7,7 +7,7 @@ import sys
 import shutil
 from pathlib import Path
 
-TESTS_DIR = Path("tests")
+TESTS_DIR = Path("uhdm_tests")
 GOLDEN_DIR = Path("golden")
 
 

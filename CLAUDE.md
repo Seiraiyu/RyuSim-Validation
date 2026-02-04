@@ -17,9 +17,9 @@ The repo consolidates content ported from three upstream sources, preserving the
 
 | Directory | Source Repo | Purpose |
 |-----------|------------|---------|
-| `rtlmeter/` | [verilator/rtlmeter](https://github.com/verilator/rtlmeter) | Real-world processor benchmarks (VeeR, Vortex, XuanTie, BlackParrot) |
-| `cocotb/` | [cocotb/cocotb/tests/designs](https://github.com/cocotb/cocotb/tree/master/tests/designs) | Reference test modules (uart2bus, array_module, sample_module, etc.) |
-| `tests/` | [chipsalliance/UHDM-integration-tests](https://github.com/chipsalliance/UHDM-integration-tests) | SystemVerilog construct coverage (~280 tests across 5 categories) |
+| `rtlmeter_tests/` | [verilator/rtlmeter](https://github.com/verilator/rtlmeter) | Real-world processor benchmarks (VeeR, Vortex, XuanTie, BlackParrot) |
+| `cocotb_tests/` | [cocotb/cocotb/tests/designs](https://github.com/cocotb/cocotb/tree/master/tests/designs) | Reference test modules (uart2bus, array_module, sample_module, etc.) |
+| `uhdm_tests/` | [chipsalliance/UHDM-integration-tests](https://github.com/chipsalliance/UHDM-integration-tests) | SystemVerilog construct coverage (~280 tests across 5 categories) |
 
 ### Per-design/test structure
 
@@ -71,7 +71,7 @@ curl -fsSL https://ryusim.seiraiyu.com/install.sh | bash
 pip install git+https://github.com/Seiraiyu/cocotb.git
 
 # Run a single design's tests via cocotb
-cd rtlmeter/VeeR-EL2 && make      # uses SIM=ryusim from Makefile
+cd rtlmeter_tests/VeeR-EL2 && make      # uses SIM=ryusim from Makefile
 
 # Run all benchmarks
 python run_benchmarks.py --all

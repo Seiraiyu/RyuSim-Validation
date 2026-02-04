@@ -11,7 +11,7 @@ from pathlib import Path
 
 import yaml
 
-BENCHMARK_DIRS = [Path("rtlmeter"), Path("cocotb")]
+BENCHMARK_DIRS = [Path("rtlmeter_tests"), Path("cocotb_tests")]
 
 
 def get_ryusim_version():

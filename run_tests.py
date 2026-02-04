@@ -11,7 +11,7 @@ from pathlib import Path
 
 import yaml
 
-TESTS_DIR = Path("tests")
+TESTS_DIR = Path("uhdm_tests")
 
 CATEGORIES = [
     "combinational",
