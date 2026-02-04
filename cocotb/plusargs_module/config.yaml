@@ -1,5 +1,5 @@
 name: plusargs_module
 source: cocotb
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "Minimal register placeholder (upstream was non-synthesizable $value$plusargs testbench)"
+top_module: tb_top
