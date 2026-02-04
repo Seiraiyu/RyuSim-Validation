@@ -1,9 +1,23 @@
-# XuanTie-E906 — cocotb testbench
+# XuanTie-E906 -- cocotb testbench
+#
+# T-Head XuanTie E906 small RISC-V RV32IMFC embedded core
+# Top module: soc -- SoC wrapper containing the E906 CPU core (openE906),
+# AHB bus, memory controller, and peripherals (UART, GPIO, timer, CLIC)
+#
+# The upstream tb.v, mnt.v, and uart_mnt.v are non-synthesizable testbench and
+# monitoring modules that use initial blocks, $fopen, $display, $finish, and other
+# constructs. For RyuSim, the cocotb testbench replaces these entirely.
+
 TOPLEVEL_LANG = verilog
 SIM = ryusim
 
-VERILOG_SOURCES = $(wildcard rtl/*.sv) $(wildcard rtl/*.v)
-TOPLEVEL = TODO_top_module
-MODULE = test_TODO_module
+# All RTL sources (header files are picked up via include directory)
+VERILOG_SOURCES = $(wildcard rtl/*.v)
+
+# Include path for configuration headers (cpu_cfig.h, sysmap.h, etc.)
+VERILOG_INCLUDE_DIRS = rtl
+
+TOPLEVEL = soc
+MODULE = cocotb.test_xuantie_e906
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

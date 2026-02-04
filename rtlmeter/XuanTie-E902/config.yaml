@@ -1,5 +1,19 @@
 name: XuanTie-E902
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "T-Head XuanTie E902 -- tiny RISC-V RV32EMC embedded core (Alibaba T-Head)"
+top_module: soc
+upstream:
+  repository: https://github.com/XUANTIE-RV/opene902.git
+  revision: 991836411b405ac6a0a8d7668f2f5de6fa2a5b8c
+  license: Apache-2.0
+tests:
+  hello:
+    program: programs/hello.hex
+    description: "Hello World -- basic sanity test"
+  cmark:
+    program: programs/cmark.hex
+    description: "CoreMark benchmark"
+  memcpy:
+    program: programs/memcpy.hex
+    description: "Memory copy benchmark"

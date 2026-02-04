@@ -1,5 +1,19 @@
 name: XuanTie-E906
 source: rtlmeter
 tier: 1
-description: "TODO: Add description"
-top_module: "TODO_top_module"
+description: "T-Head XuanTie E906 -- small RISC-V RV32IMFC embedded core (Alibaba T-Head)"
+top_module: soc
+upstream:
+  repository: https://github.com/XUANTIE-RV/opene906.git
+  revision: c5b878958e73e0b8f324a8132943f184a7831c07
+  license: Apache-2.0
+tests:
+  hello:
+    program: programs/hello.hex
+    description: "Hello World -- basic sanity test"
+  cmark:
+    program: programs/cmark.hex
+    description: "CoreMark benchmark"
+  memcpy:
+    program: programs/memcpy.hex
+    description: "Memory copy benchmark"
