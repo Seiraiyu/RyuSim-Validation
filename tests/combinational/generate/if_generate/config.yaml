@@ -1,0 +1,7 @@
+name: if_generate
+category: combinational
+subcategory: generate
+description: "Conditional generate construct for add/subtract selection"
+top_module: if_generate
+ieee_section: "27.5"
+level: 1

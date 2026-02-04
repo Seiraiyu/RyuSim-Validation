@@ -1,0 +1,7 @@
+name: for_generate
+category: combinational
+subcategory: generate
+description: "Loop generate construct for per-bit XOR"
+top_module: for_generate
+ieee_section: "27.4"
+level: 1
