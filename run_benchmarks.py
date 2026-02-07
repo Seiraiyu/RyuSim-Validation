@@ -28,14 +28,28 @@ def get_ryusim_version():
         return "unknown"
 
 
-def discover_designs():
-    """Scan benchmark directories for designs with config.yaml."""
+def discover_designs(include_disabled=False):
+    """Scan benchmark directories for designs with config.yaml.
+
+    Args:
+        include_disabled: If True, include designs with enabled: false
+    """
     designs = []
     for base in BENCHMARK_DIRS:
         if not base.is_dir():
             continue
         for entry in sorted(base.iterdir()):
-            if entry.is_dir() and (entry / "config.yaml").exists():
+            config_file = entry / "config.yaml"
+            if entry.is_dir() and config_file.exists():
+                # Check if design is enabled (default: True)
+                if not include_disabled:
+                    try:
+                        with open(config_file) as f:
+                            config = yaml.safe_load(f) or {}
+                        if config.get("enabled", True) is False:
+                            continue
+                    except (FileNotFoundError, yaml.YAMLError):
+                        pass
                 designs.append(entry)
     return designs
 
@@ -181,13 +195,18 @@ def main():
     parser.add_argument("--output", type=str, help="Output JSON file path")
     parser.add_argument("--ryusim-version", type=str, help="Expected RyuSim version")
     parser.add_argument("--verbose", "-v", action="store_true", help="Print per-benchmark progress to stderr")
+    parser.add_argument(
+        "--include-disabled",
+        action="store_true",
+        help="Include designs with enabled: false in config.yaml",
+    )
     args = parser.parse_args()
 
     if not args.all and not args.design:
         parser.print_help()
         sys.exit(0)
 
-    designs = discover_designs()
+    designs = discover_designs(include_disabled=args.include_disabled)
 
     if args.design:
         designs = [d for d in designs if d.name == args.design]

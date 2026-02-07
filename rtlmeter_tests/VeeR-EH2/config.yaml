@@ -2,6 +2,12 @@ name: VeeR-EH2
 source: rtlmeter
 tier: 1
 description: "Western Digital VeeR EH2 — dual-threaded RISC-V RV32IMC core (CHIPS Alliance)"
+
+# TEMPORARILY DISABLED: Blocked on RyuSim issue #21
+# See: https://github.com/Seiraiyu/RyuSimAlt/issues/21
+# Tracking: https://github.com/Seiraiyu/RyuSim-Validation/issues/1
+# Re-enable once RyuSim fixes the underlying issue
+enabled: false
 top_module: eh2_veer_wrapper
 upstream:
   repository: https://github.com/chipsalliance/Cores-VeeR-EH2.git
