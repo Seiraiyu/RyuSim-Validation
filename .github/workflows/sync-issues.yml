@@ -1,0 +1,45 @@
+name: Sync Issues to RyuSimAlt
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  sync-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create issue in private repo
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.RYUSIMALT_TOKEN }}
+          script: |
+            const issue = context.payload.issue;
+            const publicUrl = issue.html_url;
+
+            // Build the body with link back to public issue
+            const body = `**Synced from public repo:** ${publicUrl}\n\n---\n\n${issue.body || '(no description)'}`;
+
+            // Get labels (just the names)
+            const labels = issue.labels.map(l => l.name);
+
+            // Create the issue in RyuSimAlt
+            const result = await github.rest.issues.create({
+              owner: 'Seiraiyu',
+              repo: 'RyuSimAlt',
+              title: issue.title,
+              body: body,
+              labels: labels
+            });
+
+            console.log(`Created issue #${result.data.number} in RyuSimAlt`);
+
+      - name: Post acknowledgment comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: 'Thanks for the report! This has been queued for internal review.'
+            });
