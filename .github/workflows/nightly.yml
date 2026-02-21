@@ -1,8 +1,8 @@
-name: Nightly Validation
+name: Weekly Validation
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 6 * * 1"
   workflow_dispatch:
     inputs:
       ryusim_version:
@@ -38,10 +38,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build clang verilator
 
       - name: Run benchmarks
-        run: python run_benchmarks.py --all --output results/benchmarks-nightly-${{ matrix.os }}.json
+        run: python -u run_benchmarks.py --all --verbose --output results/benchmarks-nightly-${{ matrix.os }}.json
 
       - name: Run SV construct tests
-        run: python run_tests.py --all --level 2 --output results/sv-tests-nightly-${{ matrix.os }}.json
+        run: python -u run_tests.py --all --level 2 --verbose --output results/sv-tests-nightly-${{ matrix.os }}.json
 
       - name: Upload nightly results
         uses: actions/upload-artifact@v4

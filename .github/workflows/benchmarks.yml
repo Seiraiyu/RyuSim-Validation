@@ -44,7 +44,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build clang verilator
 
       - name: Run benchmarks
-        run: python run_benchmarks.py --all --output results/benchmarks-${{ matrix.os }}.json
+        run: python -u run_benchmarks.py --all --verbose --output results/benchmarks-${{ matrix.os }}.json
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4

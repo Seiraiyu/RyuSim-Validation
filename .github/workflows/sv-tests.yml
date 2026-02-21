@@ -48,9 +48,9 @@ jobs:
       - name: Run SV construct tests
         run: |
           if [ "${{ inputs.category }}" = "all" ] || [ -z "${{ inputs.category }}" ]; then
-            python run_tests.py --all --level 1 --verbose --output results/sv-tests-${{ matrix.os }}.json
+            python -u run_tests.py --all --level 1 --verbose --output results/sv-tests-${{ matrix.os }}.json
           else
-            python run_tests.py --category ${{ inputs.category }} --level 1 --verbose --output results/sv-tests-${{ matrix.os }}.json
+            python -u run_tests.py --category ${{ inputs.category }} --level 1 --verbose --output results/sv-tests-${{ matrix.os }}.json
           fi
 
       - name: Upload test results
