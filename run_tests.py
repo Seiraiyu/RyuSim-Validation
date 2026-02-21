@@ -94,7 +94,8 @@ def run_test(test_path, level=1):
     is_unsupported = category == "unsupported" or config.get("expect_fail", False)
 
     if is_unsupported:
-        # Unsupported tests: ryusim compile should FAIL
+        # Unsupported tests: ryusim may reject at compile time OR compile
+        # successfully and emit a warning at runtime.
         # Find the SV source file
         sv_files = list(test_path.glob("rtl/*.sv")) + list(test_path.glob("rtl/*.v"))
         if not sv_files:
@@ -143,20 +144,58 @@ def run_test(test_path, level=1):
                 "stderr": "ryusim not found on PATH",
             }
 
-        duration = time.perf_counter() - start_time
+        expected_warning_file = test_path / "expected_warning.txt"
+        expected_error_file = test_path / "expected_error.txt"
 
         if result.returncode != 0:
-            # Compilation failed as expected
+            # Compilation failed — check expected error message if provided
             status = "expected_fail"
-            # If expected_error.txt exists, check that stderr contains expected message
-            expected_error_file = test_path / "expected_error.txt"
             if expected_error_file.exists():
                 expected_msg = expected_error_file.read_text().strip()
                 if expected_msg and expected_msg not in result.stderr:
                     status = "failed"
+        elif expected_warning_file.exists():
+            # Compilation succeeded — run the standalone sim and check for
+            # the expected runtime warning.
+            sim_exe = test_path / "obj_dir" / "build" / f"{top_module}_sim"
+            try:
+                sim_result = subprocess.run(
+                    [str(sim_exe)],
+                    capture_output=True,
+                    text=True,
+                    cwd=str(test_path),
+                    timeout=60,
+                )
+            except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+                return {
+                    "test": test_name,
+                    "path": str(test_path),
+                    "category": category,
+                    "level": level,
+                    "status": "error",
+                    "duration": time.perf_counter() - start_time,
+                    "stdout": result.stdout,
+                    "stderr": f"Sim exe failed: {exc}",
+                }
+
+            combined_output = sim_result.stdout + sim_result.stderr
+            expected_msg = expected_warning_file.read_text().strip()
+            if expected_msg and expected_msg in combined_output:
+                status = "expected_fail"
+            else:
+                status = "failed"
+            # Append sim output for visibility
+            result = type(result)(
+                result.args,
+                result.returncode,
+                result.stdout + sim_result.stdout,
+                result.stderr + sim_result.stderr,
+            )
         else:
-            # Compilation succeeded but should have failed
+            # Compilation succeeded with no warning file to check
             status = "failed"
+
+        duration = time.perf_counter() - start_time
 
         return {
             "test": test_name,

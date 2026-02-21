@@ -1,6 +1,6 @@
 name: fork_join
 category: unsupported
 subcategory: fork_join
-description: "Verify ryusim rejects fork/join"
+description: "Verify ryusim warns about fork/join at runtime"
 top_module: bad_fork
 expect_fail: true

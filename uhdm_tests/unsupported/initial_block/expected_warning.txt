@@ -1,0 +1,1 @@
+initial block in module 'bad_initial' is not synthesizable
