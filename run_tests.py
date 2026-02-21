@@ -157,7 +157,7 @@ def run_test(test_path, level=1):
         elif expected_warning_file.exists():
             # Compilation succeeded — run the standalone sim and check for
             # the expected runtime warning.
-            sim_exe = test_path / "obj_dir" / "build" / f"{top_module}_sim"
+            sim_exe = Path("obj_dir") / "build" / f"{top_module}_sim"
             try:
                 sim_result = subprocess.run(
                     [str(sim_exe)],
