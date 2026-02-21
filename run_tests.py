@@ -111,7 +111,7 @@ def run_test(test_path, level=1):
                 "stderr": "No .sv or .v source files found",
             }
 
-        dut_file = str(sv_files[0])
+        dut_file = sv_files[0].name  # just "dut.sv" — cwd is already set to the test directory
         try:
             result = subprocess.run(
                 ["ryusim", "compile", dut_file, "--top", top_module],
