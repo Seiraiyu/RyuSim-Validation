@@ -189,7 +189,7 @@ Every test must use `@cocotb.test()` decorator and `async def`.
 
 **Step 3: Update Makefile MODULE path**
 
-Ensure the `MODULE` in the Makefile points to the correct Python module path. Since the test file is in `cocotb/test_uart2bus.py` relative to the design dir, set `MODULE = cocotb.test_uart2bus`.
+Ensure the `MODULE` in the Makefile points to the correct Python module name. Since the test file is `test_uart2bus.py`, set `MODULE = test_uart2bus`.
 
 **Step 4: Run the test**
 

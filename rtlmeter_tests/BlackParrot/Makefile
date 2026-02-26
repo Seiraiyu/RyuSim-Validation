@@ -337,6 +337,8 @@ COMPILE_ARGS = \
     -DBSG_HIDE_FROM_SYNTHESIS=1
 
 TOPLEVEL = wrapper
-MODULE = cocotb.test_blackparrot
+MODULE = test_blackparrot
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

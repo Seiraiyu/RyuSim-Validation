@@ -18,6 +18,8 @@ VERILOG_SOURCES = $(wildcard rtl/*.v)
 VERILOG_INCLUDE_DIRS = rtl
 
 TOPLEVEL = soc
-MODULE = cocotb.test_xuantie_c910
+MODULE = test_xuantie_c910
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

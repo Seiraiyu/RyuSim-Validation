@@ -233,7 +233,7 @@ SIM = ryusim
 
 VERILOG_SOURCES = $(wildcard rtl/*.sv) $(wildcard rtl/*.v)
 TOPLEVEL = top_module
-MODULE = cocotb.test_design
+MODULE = test_design
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
 ```

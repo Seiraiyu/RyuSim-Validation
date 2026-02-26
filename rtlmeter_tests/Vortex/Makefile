@@ -158,6 +158,8 @@ COMPILE_ARGS = \
     -DNUM_THREADS=4
 
 TOPLEVEL = Vortex
-MODULE = cocotb.test_vortex
+MODULE = test_vortex
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

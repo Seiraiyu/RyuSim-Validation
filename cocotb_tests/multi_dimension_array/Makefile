@@ -4,6 +4,8 @@ SIM = ryusim
 
 VERILOG_SOURCES = $(wildcard rtl/*.sv) $(wildcard rtl/*.v)
 TOPLEVEL = cocotb_array
-MODULE = cocotb.test_multi_dimension_array
+MODULE = test_multi_dimension_array
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

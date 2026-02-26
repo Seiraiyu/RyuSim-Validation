@@ -76,6 +76,8 @@ VERILOG_SOURCES = \
 VERILOG_INCLUDE_DIRS = rtl/default
 
 TOPLEVEL = eh2_veer_wrapper
-MODULE = cocotb.test_veer_eh2
+MODULE = test_veer_eh2
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

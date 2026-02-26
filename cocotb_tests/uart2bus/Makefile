@@ -4,6 +4,8 @@ SIM = ryusim
 
 VERILOG_SOURCES = $(wildcard rtl/*.sv) $(wildcard rtl/*.v)
 TOPLEVEL = uart2bus_top
-MODULE = cocotb.test_uart2bus
+MODULE = test_uart2bus
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

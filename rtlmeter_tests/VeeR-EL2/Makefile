@@ -71,6 +71,8 @@ VERILOG_SOURCES = \
 VERILOG_INCLUDE_DIRS = rtl/default
 
 TOPLEVEL = veer_wrapper
-MODULE = cocotb.test_veer_el2
+MODULE = test_veer_el2
+
+export PYTHONPATH := $(CURDIR)/cocotb
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
