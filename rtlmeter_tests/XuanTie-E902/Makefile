@@ -17,6 +17,12 @@ VERILOG_SOURCES = $(wildcard rtl/*.v)
 # Include path for configuration headers (cpu_cfig.h)
 VERILOG_INCLUDE_DIRS = rtl
 
+# Limit VPI depth to top-level ports (faster compile on CI)
+EXTRA_ARGS += --vpi-depth 1
+
+# Parallelize C++ compilation of generated simulation code
+EXTRA_ARGS += --jobs 4
+
 TOPLEVEL = soc
 MODULE = test_xuantie_e902
 

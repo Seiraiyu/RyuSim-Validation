@@ -328,13 +328,19 @@ VERILOG_SOURCES = \
 VERILOG_INCLUDE_DIRS = rtl/basejump_stl rtl/bp rtl/hardfloat
 
 # Compile-time defines (1x1 single-core configuration)
-COMPILE_ARGS = \
+EXTRA_ARGS += \
     -Dden2048Mb=1 \
     -Dsg5=1 \
     -Dx16=1 \
     -DFULL_MEM=1 \
     -DBP_CFG_FLOWVAR=e_bp_multicore_1_cfg \
     -DBSG_HIDE_FROM_SYNTHESIS=1
+
+# Limit VPI depth to top-level ports (faster compile on CI)
+EXTRA_ARGS += --vpi-depth 1
+
+# Parallelize C++ compilation of generated simulation code
+EXTRA_ARGS += --jobs 4
 
 TOPLEVEL = wrapper
 MODULE = test_blackparrot

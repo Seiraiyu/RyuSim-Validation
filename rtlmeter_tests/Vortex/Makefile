@@ -147,7 +147,7 @@ VERILOG_SOURCES = \
 VERILOG_INCLUDE_DIRS = rtl rtl/fpnew
 
 # Compile-time defines (mini configuration: 1 cluster, 1 core)
-COMPILE_ARGS = \
+EXTRA_ARGS += \
     -DSIMULATION=1 \
     -DXLEN_32=1 \
     -DFPU_FPNEW=1 \
@@ -156,6 +156,12 @@ COMPILE_ARGS = \
     -DNUM_CORES=1 \
     -DNUM_WARPS=4 \
     -DNUM_THREADS=4
+
+# Limit VPI depth to top-level ports (faster compile on CI)
+EXTRA_ARGS += --vpi-depth 1
+
+# Parallelize C++ compilation of generated simulation code
+EXTRA_ARGS += --jobs 4
 
 TOPLEVEL = Vortex
 MODULE = test_vortex

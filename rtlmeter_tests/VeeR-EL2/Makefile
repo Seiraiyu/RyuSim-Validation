@@ -70,6 +70,12 @@ VERILOG_SOURCES = \
 # Include path for configuration headers (default config)
 VERILOG_INCLUDE_DIRS = rtl/default
 
+# Limit VPI depth to top-level ports (faster compile on CI)
+EXTRA_ARGS += --vpi-depth 1
+
+# Parallelize C++ compilation of generated simulation code
+EXTRA_ARGS += --jobs 4
+
 TOPLEVEL = veer_wrapper
 MODULE = test_veer_el2
 
