@@ -12,6 +12,7 @@ from pathlib import Path
 import yaml
 
 BENCHMARK_DIRS = [Path("rtlmeter_tests"), Path("cocotb_tests")]
+DEFAULT_TIMEOUT = 900  # 15 minutes — large designs need 5-10min to compile on CI
 
 
 def get_ryusim_version():
@@ -54,11 +55,13 @@ def discover_designs(include_disabled=False):
     return designs
 
 
-def run_benchmark(design_path, test_name=None, compare_verilator=False):
+def run_benchmark(design_path, test_name=None, compare_verilator=False, timeout_override=None):
     """Run benchmark for a single design.
 
     Runs `make` in the design directory (cocotb with SIM=ryusim), captures
     timing and exit code. Optionally runs Verilator comparison.
+
+    Timeout precedence: CLI --timeout > config.yaml timeout > DEFAULT_TIMEOUT.
 
     Returns a dict with benchmark results.
     """
@@ -82,6 +85,9 @@ def run_benchmark(design_path, test_name=None, compare_verilator=False):
             "stderr": "config.yaml not found",
         }
 
+    # Determine timeout: CLI override > config.yaml > default
+    design_timeout = timeout_override or config.get("timeout", DEFAULT_TIMEOUT)
+
     # Build make command with optional test target
     make_cmd = ["make"]
     if test_name:
@@ -95,7 +101,7 @@ def run_benchmark(design_path, test_name=None, compare_verilator=False):
             capture_output=True,
             text=True,
             cwd=str(design_path),
-            timeout=300,
+            timeout=design_timeout,
         )
     except subprocess.TimeoutExpired:
         elapsed = time.perf_counter() - compile_start
@@ -110,7 +116,7 @@ def run_benchmark(design_path, test_name=None, compare_verilator=False):
             "status": "error",
             "duration": elapsed,
             "stdout": "",
-            "stderr": "Benchmark timed out (300s)",
+            "stderr": f"Benchmark timed out ({design_timeout}s)",
         }
     except FileNotFoundError:
         return {
@@ -157,7 +163,7 @@ def run_benchmark(design_path, test_name=None, compare_verilator=False):
                 capture_output=True,
                 text=True,
                 cwd=str(design_path),
-                timeout=300,
+                timeout=design_timeout,
             )
             verilator_elapsed = time.perf_counter() - verilator_start
             benchmark_result["verilator"] = {
@@ -193,6 +199,7 @@ def main():
         help="Enable Verilator comparison",
     )
     parser.add_argument("--output", type=str, help="Output JSON file path")
+    parser.add_argument("--timeout", type=int, help=f"Override per-design timeout in seconds (default: {DEFAULT_TIMEOUT})")
     parser.add_argument("--ryusim-version", type=str, help="Expected RyuSim version")
     parser.add_argument("--verbose", "-v", action="store_true", help="Print per-benchmark progress to stderr")
     parser.add_argument(
@@ -225,6 +232,7 @@ def main():
             design,
             test_name=args.test,
             compare_verilator=args.compare_verilator,
+            timeout_override=args.timeout,
         )
         results.append(result)
         if args.verbose:
