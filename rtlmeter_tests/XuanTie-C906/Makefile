@@ -11,8 +11,9 @@
 TOPLEVEL_LANG = verilog
 SIM = ryusim
 
-# All RTL sources (header files are picked up via include directory)
-VERILOG_SOURCES = $(wildcard rtl/*.v)
+# All RTL sources — .h headers contain `define macros required by .v files
+# and must be compiled first (no `include in upstream RTL)
+VERILOG_SOURCES = $(wildcard rtl/*.h) $(wildcard rtl/*.v)
 
 # Include path for configuration headers (cpu_cfig.h, etc.)
 VERILOG_INCLUDE_DIRS = rtl
