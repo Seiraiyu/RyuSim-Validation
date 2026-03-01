@@ -2,6 +2,7 @@ name: XuanTie-C906
 source: rtlmeter
 tier: 1
 description: "T-Head XuanTie C906 -- mid-range RISC-V RV64GC application core (Alibaba T-Head)"
+timeout: 1200  # C906 is large (284 .v files) — needs ~15min to compile on CI runners
 top_module: soc
 upstream:
   repository: https://github.com/XUANTIE-RV/openc906.git
