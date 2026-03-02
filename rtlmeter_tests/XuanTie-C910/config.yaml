@@ -2,7 +2,7 @@ name: XuanTie-C910
 source: rtlmeter
 tier: 1
 description: "T-Head XuanTie C910 -- high-performance RISC-V RV64GC multi-issue application core (Alibaba T-Head)"
-timeout: 1800  # C910 is very large — needs ~20min to compile on CI runners
+timeout: 3600  # C910 is very large — needs ~30min+ to compile on CI runners
 top_module: soc
 upstream:
   repository: https://github.com/XUANTIE-RV/openc910.git
