@@ -147,7 +147,10 @@ VERILOG_SOURCES = \
 VERILOG_INCLUDE_DIRS = rtl rtl/fpnew
 
 # Compile-time defines (mini configuration: 1 cluster, 1 core)
+# SYNTHESIS enables the platform utility macros (IGNORE_UNUSED_BEGIN, UNUSED_VAR, etc.)
+# in VX_platform.vh — these are only defined under `ifdef SYNTHESIS or `ifdef VERILATOR.
 EXTRA_ARGS += \
+    -DSYNTHESIS \
     -DSIMULATION=1 \
     -DXLEN_32=1 \
     -DFPU_FPNEW=1 \

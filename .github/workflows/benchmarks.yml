@@ -5,10 +5,14 @@ on:
     paths:
       - "rtlmeter_tests/**"
       - "cocotb_tests/**"
+      - "run_benchmarks.py"
+      - ".github/workflows/benchmarks.yml"
   pull_request:
     paths:
       - "rtlmeter_tests/**"
       - "cocotb_tests/**"
+      - "run_benchmarks.py"
+      - ".github/workflows/benchmarks.yml"
   workflow_dispatch:
     inputs:
       ryusim_version:
@@ -18,6 +22,7 @@ on:
 
 jobs:
   benchmark:
+    timeout-minutes: 120
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
