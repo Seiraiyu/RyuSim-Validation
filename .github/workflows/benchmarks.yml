@@ -53,12 +53,13 @@ jobs:
         if: matrix.container == 'rockylinux:9'
         run: |
           dnf install -y epel-release
-          dnf install -y python3 python3-pip git curl cmake ninja-build clang gcc gcc-c++ make ca-certificates
+          /usr/bin/crb enable
+          dnf install -y python3 python3-pip git curl cmake ninja-build clang gcc gcc-c++ make librtmp ca-certificates
 
       - name: Install base packages (Fedora 40)
         if: matrix.container == 'fedora:40'
         run: |
-          dnf install -y python3 python3-pip git curl cmake ninja-build clang gcc gcc-c++ make verilator ca-certificates
+          dnf install -y python3 python3-pip git curl cmake ninja-build clang gcc gcc-c++ make verilator librtmp ca-certificates
 
       - name: Checkout repository
         uses: actions/checkout@v4
