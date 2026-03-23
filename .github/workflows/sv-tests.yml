@@ -21,41 +21,74 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container || '' }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
-        python-version: ["3.11"]
+        include:
+          - distro: ubuntu-24.04
+            os: ubuntu-24.04
+          - distro: ubuntu-22.04
+            os: ubuntu-22.04
+          - distro: debian-12
+            os: ubuntu-latest
+            container: debian:12
+          - distro: rocky-9
+            os: ubuntu-latest
+            container: rockylinux:9
+          - distro: fedora-40
+            os: ubuntu-latest
+            container: fedora:40
     steps:
+      - name: Install base packages (Debian 12)
+        if: matrix.container == 'debian:12'
+        run: |
+          apt-get update
+          apt-get install -y python3 python3-pip python3-venv git curl cmake ninja-build clang verilator ca-certificates
+
+      - name: Install base packages (Rocky 9)
+        if: matrix.container == 'rockylinux:9'
+        run: |
+          dnf install -y epel-release
+          dnf install -y python3 python3-pip git curl cmake ninja-build clang gcc gcc-c++ make ca-certificates
+
+      - name: Install base packages (Fedora 40)
+        if: matrix.container == 'fedora:40'
+        run: |
+          dnf install -y python3 python3-pip git curl cmake ninja-build clang gcc gcc-c++ make verilator ca-certificates
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python (native runners)
+        if: ${{ !matrix.container }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Install RyuSim
-        run: sudo bash setup_ryusim.sh
+        run: bash setup_ryusim.sh
         env:
           RYUSIM_VERSION: ${{ inputs.ryusim_version }}
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: pip install ${{ matrix.container && '--break-system-packages' || '' }} -r requirements.txt
 
-      - name: Install system dependencies
+      - name: Install system dependencies (native Ubuntu)
+        if: ${{ !matrix.container }}
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build clang verilator
 
       - name: Run SV construct tests
         run: |
           if [ "${{ inputs.category }}" = "all" ] || [ -z "${{ inputs.category }}" ]; then
-            python -u run_tests.py --all --level 1 --verbose --output results/sv-tests-${{ matrix.os }}.json
+            python3 -u run_tests.py --all --level 1 --verbose --output results/sv-tests-${{ matrix.distro }}.json
           else
-            python -u run_tests.py --category ${{ inputs.category }} --level 1 --verbose --output results/sv-tests-${{ matrix.os }}.json
+            python3 -u run_tests.py --category ${{ inputs.category }} --level 1 --verbose --output results/sv-tests-${{ matrix.distro }}.json
           fi
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: sv-test-results-${{ matrix.os }}
+          name: sv-test-results-${{ matrix.distro }}
           path: results/
           retention-days: 30
