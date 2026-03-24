@@ -33,30 +33,32 @@ jobs:
           - distro: debian-12
             os: ubuntu-latest
             container: debian:12
+            pip_flags: "--break-system-packages"
           - distro: rocky-9
             os: ubuntu-latest
             container: rockylinux:9
           - distro: fedora-40
             os: ubuntu-latest
             container: fedora:40
+            pip_flags: "--break-system-packages"
     steps:
       - name: Install base packages (Debian 12)
         if: matrix.container == 'debian:12'
         run: |
           apt-get update
-          apt-get install -y python3 python3-pip python3-venv git curl ca-certificates cmake ninja-build clang
+          apt-get install -y python3 python3-pip python3-venv git curl ca-certificates cmake ninja-build clang verilator
 
       - name: Install base packages (Rocky 9)
         if: matrix.container == 'rockylinux:9'
         run: |
           dnf install -y epel-release
           /usr/bin/crb enable
-          dnf install -y python3 python3-pip git ca-certificates cmake ninja-build clang gcc gcc-c++ make
+          dnf install -y python3 python3-pip git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator
 
       - name: Install base packages (Fedora 40)
         if: matrix.container == 'fedora:40'
         run: |
-          dnf install -y python3 python3-pip git ca-certificates cmake ninja-build clang gcc gcc-c++ make
+          dnf install -y python3 python3-pip git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -73,7 +75,7 @@ jobs:
           RYUSIM_VERSION: ${{ inputs.ryusim_version }}
 
       - name: Install Python dependencies
-        run: pip install ${{ matrix.container && '--break-system-packages' || '' }} -r requirements.txt
+        run: pip install ${{ matrix.pip_flags || '' }} -r requirements.txt
 
       - name: Install system dependencies (native Ubuntu)
         if: ${{ !matrix.container }}
