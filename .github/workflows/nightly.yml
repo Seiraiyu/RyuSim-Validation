@@ -45,7 +45,7 @@ jobs:
         run: |
           dnf install -y epel-release
           /usr/bin/crb enable
-          dnf install -y python3 python3-pip git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator
+          dnf install -y python3 python3-pip git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-static
 
       - name: Install base packages (Fedora 40)
         if: matrix.container == 'fedora:40'
