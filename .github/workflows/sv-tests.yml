@@ -58,7 +58,7 @@ jobs:
       - name: Install base packages (Fedora 40)
         if: matrix.container == 'fedora:40'
         run: |
-          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-devel zlib-devel openssl-devel
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-devel libstdc++-static zlib-devel openssl-devel
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -69,6 +69,13 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install system dependencies (native Ubuntu)
+        if: ${{ !matrix.container }}
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang verilator zlib1g-dev libssl-dev libstdc++-13-dev
+
       - name: Install RyuSim
         run: bash setup_ryusim.sh
         env:
@@ -76,13 +83,6 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install ${{ matrix.pip_flags || '' }} -r requirements.txt
-
-      - name: Install system dependencies (native Ubuntu)
-        if: ${{ !matrix.container }}
-        run: |
-          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
-          sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang verilator zlib1g-dev libssl-dev libstdc++-13-dev
 
       - name: Run SV construct tests
         run: |
