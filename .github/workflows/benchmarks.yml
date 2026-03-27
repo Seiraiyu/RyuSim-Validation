@@ -22,7 +22,7 @@ on:
 
 jobs:
   benchmark:
-    timeout-minutes: 120
+    timeout-minutes: 240
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
