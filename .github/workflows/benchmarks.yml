@@ -10,7 +10,6 @@ on:
 
 jobs:
   benchmark:
-    timeout-minutes: 120
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container || '' }}
     strategy:
