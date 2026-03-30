@@ -1,12 +1,6 @@
 name: SV Construct Tests
 
 on:
-  push:
-    paths:
-      - "uhdm_tests/**"
-  pull_request:
-    paths:
-      - "uhdm_tests/**"
   workflow_dispatch:
     inputs:
       ryusim_version:
