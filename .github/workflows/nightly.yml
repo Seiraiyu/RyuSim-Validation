@@ -13,39 +13,78 @@ on:
 jobs:
   validate:
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container || '' }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
-        python-version: ["3.11"]
+        include:
+          - distro: ubuntu-24.04
+            os: ubuntu-24.04
+          - distro: ubuntu-22.04
+            os: ubuntu-22.04
+          - distro: debian-12
+            os: ubuntu-latest
+            container: debian:12
+            pip_flags: "--break-system-packages"
+          - distro: rocky-9
+            os: ubuntu-latest
+            container: rockylinux:9
+          - distro: fedora-40
+            os: ubuntu-latest
+            container: fedora:40
+            pip_flags: "--break-system-packages"
     steps:
+      - name: Install base packages (Debian 12)
+        if: matrix.container == 'debian:12'
+        run: |
+          apt-get update
+          apt-get install -y python3 python3-pip python3-dev python3-venv git curl ca-certificates cmake ninja-build clang verilator zlib1g-dev libssl-dev
+
+      - name: Install base packages (Rocky 9)
+        if: matrix.container == 'rockylinux:9'
+        run: |
+          dnf install -y epel-release
+          /usr/bin/crb enable
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-static zlib-devel openssl-devel
+
+      - name: Install base packages (Fedora 40)
+        if: matrix.container == 'fedora:40'
+        run: |
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-devel libstdc++-static zlib-devel openssl-devel
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python (native runners)
+        if: ${{ !matrix.container }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
+
+      - name: Install system dependencies (native Ubuntu)
+        if: ${{ !matrix.container }}
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang verilator zlib1g-dev libssl-dev libstdc++-13-dev
 
       - name: Install RyuSim
-        run: sudo bash setup_ryusim.sh
+        run: bash setup_ryusim.sh
         env:
           RYUSIM_VERSION: ${{ inputs.ryusim_version }}
 
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build clang verilator
+        run: pip install ${{ matrix.pip_flags || '' }} -r requirements.txt
 
       - name: Run benchmarks
-        run: python -u run_benchmarks.py --all --verbose --output results/benchmarks-nightly-${{ matrix.os }}.json
+        run: python3 -u run_benchmarks.py --all --verbose --output results/benchmarks-nightly-${{ matrix.distro }}.json
 
       - name: Run SV construct tests
-        run: python -u run_tests.py --all --level 2 --verbose --output results/sv-tests-nightly-${{ matrix.os }}.json
+        run: python3 -u run_tests.py --all --level 2 --verbose --output results/sv-tests-nightly-${{ matrix.distro }}.json
 
       - name: Upload nightly results
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-results-${{ matrix.os }}
+          name: nightly-results-${{ matrix.distro }}
           path: results/
           retention-days: 30
