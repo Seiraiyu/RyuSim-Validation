@@ -26,31 +26,60 @@ jobs:
             os: ubuntu-latest
             container: debian:12
             pip_flags: "--break-system-packages"
+          - distro: debian-13
+            os: ubuntu-latest
+            container: debian:13
+            pip_flags: "--break-system-packages"
           - distro: rocky-9
             os: ubuntu-latest
             container: rockylinux:9
+          - distro: rocky-10
+            os: ubuntu-latest
+            container: rockylinux:10
           - distro: fedora-40
             os: ubuntu-latest
             container: fedora:40
+            pip_flags: "--break-system-packages"
+          - distro: fedora-42
+            os: ubuntu-latest
+            container: fedora:42
             pip_flags: "--break-system-packages"
     steps:
       - name: Install base packages (Debian 12)
         if: matrix.container == 'debian:12'
         run: |
           apt-get update
-          apt-get install -y python3 python3-pip python3-dev python3-venv git curl ca-certificates cmake ninja-build clang verilator zlib1g-dev libssl-dev
+          apt-get install -y python3 python3-pip python3-dev python3-venv git curl ca-certificates cmake ninja-build clang zlib1g-dev libssl-dev
+
+      - name: Install base packages (Debian 13)
+        if: matrix.container == 'debian:13'
+        run: |
+          apt-get update
+          apt-get install -y python3 python3-pip python3-dev python3-venv git curl ca-certificates cmake ninja-build clang zlib1g-dev libssl-dev
 
       - name: Install base packages (Rocky 9)
         if: matrix.container == 'rockylinux:9'
         run: |
           dnf install -y epel-release
           /usr/bin/crb enable
-          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-static zlib-devel openssl-devel
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make libstdc++-static zlib-devel openssl-devel
+
+      - name: Install base packages (Rocky 10)
+        if: matrix.container == 'rockylinux:10'
+        run: |
+          dnf install -y epel-release
+          /usr/bin/crb enable
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make libstdc++-static zlib-devel openssl-devel
 
       - name: Install base packages (Fedora 40)
         if: matrix.container == 'fedora:40'
         run: |
-          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make verilator libstdc++-devel libstdc++-static zlib-devel openssl-devel
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make libstdc++-devel libstdc++-static zlib-devel openssl-devel
+
+      - name: Install base packages (Fedora 42)
+        if: matrix.container == 'fedora:42'
+        run: |
+          dnf install -y python3 python3-pip python3-devel git ca-certificates cmake ninja-build clang gcc gcc-c++ make libstdc++-devel libstdc++-static zlib-devel openssl-devel
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,7 +95,7 @@ jobs:
         run: |
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang verilator zlib1g-dev libssl-dev libstdc++-13-dev
+          sudo apt-get install -y cmake ninja-build clang zlib1g-dev libssl-dev libstdc++-13-dev
 
       - name: Install RyuSim
         run: bash setup_ryusim.sh
@@ -76,15 +105,15 @@ jobs:
       - name: Install Python dependencies
         run: pip install ${{ matrix.pip_flags || '' }} -r requirements.txt
 
-      - name: Run benchmarks
-        run: python3 -u run_benchmarks.py --all --verbose --output results/benchmarks-nightly-${{ matrix.distro }}.json
+      - name: Run cocotb tests
+        run: python3 -u run_benchmarks.py --source cocotb --all --verbose --output results/cocotb-weekly-${{ matrix.distro }}.json
 
       - name: Run SV construct tests
-        run: python3 -u run_tests.py --all --level 2 --verbose --output results/sv-tests-nightly-${{ matrix.distro }}.json
+        run: python3 -u run_tests.py --all --level 1 --verbose --output results/sv-tests-weekly-${{ matrix.distro }}.json
 
-      - name: Upload nightly results
+      - name: Upload weekly results
         uses: actions/upload-artifact@v4
         with:
-          name: nightly-results-${{ matrix.distro }}
+          name: weekly-results-${{ matrix.distro }}
           path: results/
           retention-days: 30

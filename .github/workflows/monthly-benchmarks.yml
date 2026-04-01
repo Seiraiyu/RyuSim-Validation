@@ -1,0 +1,53 @@
+name: Monthly Full Benchmarks
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+    inputs:
+      ryusim_version:
+        description: "RyuSim version to install"
+        type: string
+        default: "latest"
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build verilator zlib1g-dev libssl-dev libstdc++-13-dev wget gnupg lsb-release software-properties-common
+          wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
+          sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
+          sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
+
+      - name: Install RyuSim
+        run: bash setup_ryusim.sh
+        env:
+          RYUSIM_VERSION: ${{ inputs.ryusim_version }}
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run full benchmarks
+        run: python3 -u run_benchmarks.py --all --verbose --output results/benchmarks-monthly.json
+
+      - name: Run SV construct tests (level 2)
+        run: python3 -u run_tests.py --all --level 2 --verbose --output results/sv-tests-monthly.json
+
+      - name: Upload monthly results
+        uses: actions/upload-artifact@v4
+        with:
+          name: monthly-results
+          path: results/
+          retention-days: 90
