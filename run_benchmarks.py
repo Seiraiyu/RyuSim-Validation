@@ -11,7 +11,10 @@ from pathlib import Path
 
 import yaml
 
-BENCHMARK_DIRS = [Path("rtlmeter_tests"), Path("cocotb_tests")]
+BENCHMARK_DIRS = {
+    "rtlmeter": Path("rtlmeter_tests"),
+    "cocotb": Path("cocotb_tests"),
+}
 DEFAULT_TIMEOUT = 900  # 15 minutes — large designs need 5-10min to compile on CI
 
 
@@ -29,14 +32,19 @@ def get_ryusim_version():
         return "unknown"
 
 
-def discover_designs(include_disabled=False):
+def discover_designs(include_disabled=False, source=None):
     """Scan benchmark directories for designs with config.yaml.
 
     Args:
         include_disabled: If True, include designs with enabled: false
+        source: If set, only scan this source directory ("cocotb" or "rtlmeter")
     """
     designs = []
-    for base in BENCHMARK_DIRS:
+    if source:
+        dirs_to_scan = [BENCHMARK_DIRS[source]]
+    else:
+        dirs_to_scan = list(BENCHMARK_DIRS.values())
+    for base in dirs_to_scan:
         if not base.is_dir():
             continue
         for entry in sorted(base.iterdir()):
@@ -192,6 +200,12 @@ def main():
     )
     parser.add_argument("--all", action="store_true", help="Run all benchmarks")
     parser.add_argument("--design", type=str, help="Run specific design")
+    parser.add_argument(
+        "--source",
+        type=str,
+        choices=["cocotb", "rtlmeter"],
+        help="Only run benchmarks from this source directory",
+    )
     parser.add_argument("--test", type=str, help="Run specific test within a design")
     parser.add_argument(
         "--compare-verilator",
@@ -213,7 +227,7 @@ def main():
         parser.print_help()
         sys.exit(0)
 
-    designs = discover_designs(include_disabled=args.include_disabled)
+    designs = discover_designs(include_disabled=args.include_disabled, source=args.source)
 
     if args.design:
         designs = [d for d in designs if d.name == args.design]
