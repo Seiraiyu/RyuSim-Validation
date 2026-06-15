@@ -93,9 +93,19 @@ jobs:
       - name: Install system dependencies (native Ubuntu)
         if: ${{ !matrix.container }}
         run: |
+          # libstdc++-13 (needed for GLIBCXX_3.4.31/32) requires a clang new
+          # enough to compile its <chrono> consteval code. The 22.04 runner ships
+          # Clang 14, which cannot — RyuSim's generated sim_loop.cpp fails with
+          # "call to consteval function ... is not a constant expression". Install
+          # Clang 18 from apt.llvm.org and point clang++ at it, matching the
+          # toolchain in RyuSimAlt's canonical ubuntu2204 build image.
+          # (24.04 already ships Clang 18, so the symlink is a no-op there.)
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang zlib1g-dev libssl-dev libstdc++-13-dev
+          sudo apt-get install -y cmake ninja-build zlib1g-dev libssl-dev libstdc++-13-dev
+          wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
+          sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
+          sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
 
       - name: Install RyuSim
         run: bash setup_ryusim.sh
