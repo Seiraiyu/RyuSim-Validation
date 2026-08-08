@@ -149,9 +149,11 @@ VERILOG_INCLUDE_DIRS = rtl rtl/fpnew
 # Compile-time defines (mini configuration: 1 cluster, 1 core)
 # SYNTHESIS enables the platform utility macros (IGNORE_UNUSED_BEGIN, UNUSED_VAR, etc.)
 # in VX_platform.vh — these are only defined under `ifdef SYNTHESIS or `ifdef VERILATOR.
+# NOTE: -DSIMULATION deliberately absent — VX_platform.vh's SIMULATION-gated
+# RUNTIME_ASSERT macros reference $root.tb.* (upstream's Verilator TB, not
+# compiled here); RyuSim 2.x evaluates assertions and correctly rejects them.
 EXTRA_ARGS += \
     -DSYNTHESIS \
-    -DSIMULATION=1 \
     -DXLEN_32=1 \
     -DFPU_FPNEW=1 \
     -DNDEBUG=1 \
