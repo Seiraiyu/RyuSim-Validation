@@ -2,12 +2,24 @@ name: VeeR-EL2
 source: rtlmeter
 tier: 1
 description: "Western Digital VeeR EL2 — production RISC-V RV32IMC core (CHIPS Alliance)"
-top_module: veer_wrapper
+top_module: tb_top
 timeout: 1800
 upstream:
   repository: https://github.com/chipsalliance/Cores-VeeR-EL2.git
   revision: c5c004589ee0a308b63278ee609e1597f61a4143
   license: Apache-2.0
+tb_upstream:
+  repository: https://github.com/verilator/rtlmeter.git
+  revision: a9180d6c55d2bf02ee574a8f60f614a85050b91c
+  files:
+    - designs/VeeR-EL2/src/tb_top.sv
+    - designs/VeeR-EL2/src/tb_top_pkg.sv
+tb:
+  top: tb_top
+  sources:
+    - tb/tb_top_pkg.sv
+    - tb/tb_top.sv
+pass_marker: "TEST_PASSED"
 configurations:
   default:
     include_dirs:
@@ -21,13 +33,20 @@ configurations:
 tests:
   hello:
     program: programs/hello.hex
+    tags: [sanity]
     description: "Hello World — basic sanity test"
   dhrystone:
     program: programs/dhrystone.hex
+    args: ["+iterations=17500"]
+    tags: [standard]
     description: "Dhrystone benchmark"
   coremark:
     program: programs/coremark.hex
+    args: ["+iterations=14"]
+    tags: [standard]
     description: "CoreMark benchmark"
   coremark_iccm:
     program: programs/coremark_iccm.hex
+    args: ["+iterations=22"]
+    tags: [standard]
     description: "CoreMark benchmark (ICCM execution)"

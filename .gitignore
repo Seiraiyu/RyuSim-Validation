@@ -213,6 +213,7 @@ __marimo__/
 **/sim_build/
 **/obj_dir/
 **/results.xml
+rtlmeter_tests/*/work/
 
 # Test results (keep directory structure)
 results/*.json

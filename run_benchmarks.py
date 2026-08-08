@@ -63,7 +63,112 @@ def discover_designs(include_disabled=False, source=None):
     return designs
 
 
-def run_benchmark(design_path, test_name=None, compare_verilator=False, timeout_override=None):
+def run_native_benchmark(design_path, config, test_name=None, tags=None,
+                         compare_verilator=False, timeout_override=None):
+    """Run a native-testbench design: `make compile`, then `make test-<t>` per test.
+
+    Pass/fail per test is the Makefile contract: sim exit 0 AND pass marker
+    (design doc 2026-08-08 §4.3). Returns the same top-level result shape as
+    run_benchmark, plus a per-test "tests" list.
+    """
+    design_timeout = timeout_override or config.get("timeout", DEFAULT_TIMEOUT)
+
+    tests_cfg = config.get("tests") or {}
+    if test_name:
+        if test_name not in tests_cfg:
+            return _error_result(design_path, test_name,
+                                 f"test '{test_name}' not in config.yaml tests")
+        selected = [test_name]
+    else:
+        selected = [
+            t for t, tc in tests_cfg.items()
+            if not tags or set(tags) & set((tc or {}).get("tags", []))
+        ]
+
+    start = time.perf_counter()
+    try:
+        compile_res = subprocess.run(
+            ["make", "compile"], capture_output=True, text=True,
+            cwd=str(design_path), timeout=design_timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return _error_result(design_path, test_name,
+                             f"compile timed out ({design_timeout}s)",
+                             elapsed=time.perf_counter() - start)
+    compile_elapsed = time.perf_counter() - start
+
+    tests = []
+    if compile_res.returncode == 0:
+        for t in selected:
+            t_start = time.perf_counter()
+            try:
+                t_res = subprocess.run(
+                    ["make", f"test-{t}"], capture_output=True, text=True,
+                    cwd=str(design_path), timeout=design_timeout,
+                )
+                t_status = "passed" if t_res.returncode == 0 else "failed"
+                t_tail = t_res.stdout[-2000:]
+            except subprocess.TimeoutExpired:
+                t_status, t_tail = "timeout", ""
+            tests.append({
+                "name": t,
+                "status": t_status,
+                "elapsed": time.perf_counter() - t_start,
+                "tags": (tests_cfg.get(t) or {}).get("tags", []),
+                "stdout_tail": t_tail,
+            })
+
+    total = time.perf_counter() - start
+    if compile_res.returncode != 0:
+        status = "failed"
+    elif all(t["status"] == "passed" for t in tests):
+        status = "passed"
+    else:
+        status = "failed"
+
+    result = {
+        "design": design_path.name,
+        "path": str(design_path),
+        "test": test_name,
+        "top_module": config.get("top_module"),
+        "description": config.get("description"),
+        "mode": "native",
+        "ryusim": {
+            "elapsed": total,
+            "status": status,
+            "compile": {"elapsed": compile_elapsed,
+                        "status": "passed" if compile_res.returncode == 0 else "failed"},
+            "execute": None,
+        },
+        "tests": tests,
+        "status": status,
+        "duration": total,
+        "stdout": compile_res.stdout[-2000:],
+        "stderr": compile_res.stderr[-2000:],
+    }
+    if compare_verilator:
+        # Native Verilator comparison lands in a later phase (design doc §4.5).
+        result["verilator"] = {"status": "unsupported-native"}
+    return result
+
+
+def _error_result(design_path, test_name, message, elapsed=0):
+    return {
+        "design": design_path.name,
+        "path": str(design_path),
+        "test": test_name,
+        "ryusim": {
+            "compile": {"elapsed": elapsed, "status": "error"},
+            "execute": {"elapsed": 0, "status": "skipped"},
+        },
+        "status": "error",
+        "duration": elapsed,
+        "stdout": "",
+        "stderr": message,
+    }
+
+
+def run_benchmark(design_path, test_name=None, compare_verilator=False, timeout_override=None, tags=None):
     """Run benchmark for a single design.
 
     Runs `make` in the design directory (cocotb with SIM=ryusim), captures
@@ -92,6 +197,12 @@ def run_benchmark(design_path, test_name=None, compare_verilator=False, timeout_
             "stdout": "",
             "stderr": "config.yaml not found",
         }
+
+    if "tb" in config:
+        return run_native_benchmark(
+            design_path, config, test_name=test_name, tags=tags,
+            compare_verilator=compare_verilator, timeout_override=timeout_override,
+        )
 
     # Determine timeout: CLI override > config.yaml > default
     design_timeout = timeout_override or config.get("timeout", DEFAULT_TIMEOUT)
@@ -212,6 +323,11 @@ def main():
         action="store_true",
         help="Enable Verilator comparison",
     )
+    parser.add_argument(
+        "--tags",
+        type=str,
+        help="Comma-separated test tags to run (native designs only), e.g. --tags sanity",
+    )
     parser.add_argument("--output", type=str, help="Output JSON file path")
     parser.add_argument("--timeout", type=int, help=f"Override per-design timeout in seconds (default: {DEFAULT_TIMEOUT})")
     parser.add_argument("--ryusim-version", type=str, help="Expected RyuSim version")
@@ -247,6 +363,7 @@ def main():
             test_name=args.test,
             compare_verilator=args.compare_verilator,
             timeout_override=args.timeout,
+            tags=[t.strip() for t in args.tags.split(",")] if args.tags else None,
         )
         results.append(result)
         if args.verbose:

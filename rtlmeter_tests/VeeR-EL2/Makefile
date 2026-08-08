@@ -1,22 +1,17 @@
-# VeeR-EL2 — cocotb testbench
+# VeeR-EL2 — native testbench (upstream rtlmeter tb_top) under RyuSim.
 #
-# Western Digital VeeR EL2 RISC-V core (CHIPS Alliance)
-# Top module: veer_wrapper — wraps el2_veer_wrapper + memory interface flattening
-#
-# The upstream tb_top.sv is a Verilator-specific testbench that uses $readmemh,
-# initial blocks, and other non-synthesizable constructs. For RyuSim, the cocotb
-# testbench replaces tb_top entirely: it drives clock, reset, and AXI memory
-# interfaces from Python.
-#
-# Configuration: the default VeeR config is used. Include files in rtl/default/
-# provide the configuration parameters (common_defines.vh, el2_param.vh, etc.)
+# tb_top $readmemh's "program.hex" from the cwd, so each test runs in
+# work/<test>/ with its program staged; iteration counts come from upstream
+# rtlmeter descriptor.yaml (default configuration).
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
 
-TOPLEVEL_LANG = verilog
-SIM = ryusim
+TB_TOP = tb_top
+SIM_BIN = obj_dir/build/$(TB_TOP)_sim
+PASS_MARKER = TEST_PASSED
 
-# Core RTL sources — order follows upstream descriptor.yaml
-# Excludes tb_top.sv (replaced by cocotb) and tb_top_pkg.sv (testbench-only)
-VERILOG_SOURCES = \
+# Upstream descriptor.yaml compile order (src/ -> rtl/), TB last.
+RTL_SOURCES = \
     rtl/el2_def.sv \
     rtl/veer_wrapper.sv \
     rtl/el2_veer_wrapper.sv \
@@ -67,18 +62,38 @@ VERILOG_SOURCES = \
     rtl/ahb_sif.sv \
     rtl/el2_mem_if.sv
 
-# Include path for configuration headers (default config)
-VERILOG_INCLUDE_DIRS = rtl/default
+TB_SOURCES = tb/tb_top_pkg.sv tb/tb_top.sv
 
-# Limit VPI depth to top-level ports (faster compile on CI)
-EXTRA_ARGS += --vpi-depth 1
+# Flag spellings verified against `ryusim compile --help` in Task 1.
+# -Itb resolves __rtlmeter_top_include.vh (stubbed; see tb/).
+RYUSIM_FLAGS = --top $(TB_TOP) -Irtl -Irtl/default -Itb --jobs 4
 
-# Parallelize C++ compilation of generated simulation code
-EXTRA_ARGS += --jobs 4
+# Per-test plusargs — upstream descriptor.yaml, default configuration.
+ARGS_hello =
+ARGS_dhrystone = +iterations=17500
+ARGS_coremark = +iterations=14
+ARGS_coremark_iccm = +iterations=22
 
-TOPLEVEL = veer_wrapper
-MODULE = test_veer_el2
+PROGRAM_hello = hello.hex
+PROGRAM_dhrystone = dhrystone.hex
+PROGRAM_coremark = coremark.hex
+PROGRAM_coremark_iccm = coremark_iccm.hex
 
-export PYTHONPATH := $(CURDIR)/cocotb
+compile: $(SIM_BIN)
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+$(SIM_BIN): $(RTL_SOURCES) $(TB_SOURCES)
+	ryusim compile $(RTL_SOURCES) $(TB_SOURCES) $(RYUSIM_FLAGS)
+
+test-%: compile
+	mkdir -p work/$*
+	cp programs/$(PROGRAM_$*) work/$*/program.hex
+	cd work/$* && ../../$(SIM_BIN) $(ARGS_$*) 2>&1 | tee run.log
+	grep -q "$(PASS_MARKER)" work/$*/run.log
+
+all: test-hello test-dhrystone test-coremark test-coremark_iccm
+
+clean:
+	rm -rf obj_dir work
+
+.PHONY: compile all clean
+.DEFAULT_GOAL := all
