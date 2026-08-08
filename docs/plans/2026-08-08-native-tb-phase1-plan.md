@@ -15,18 +15,20 @@
 
 | Task | Description | Status | Tested | Pushed |
 |------|-------------|--------|--------|--------|
-| 1 | Install RyuSim, capture CLI reality | pending | no | no |
-| 2 | Vendor upstream tb_top into `tb/` | pending | no | no |
-| 3 | Verify DUT/program parity vs upstream | pending | no | no |
-| 4 | Rewrite VeeR-EL2 Makefile (native) | pending | no | no |
-| 5 | Extend VeeR-EL2 config.yaml | pending | no | no |
-| 6 | `make compile` green | pending | no | no |
-| 7 | `make test-hello` → TEST_PASSED; commit design port | pending | no | no |
-| 8 | run_benchmarks.py native mode + `--tags` | pending | no | no |
-| 9 | Runner verified on VeeR-EL2 hello; commit runner | pending | no | no |
-| 10 | Full workloads green (dhry/cmark/cmark_iccm) | pending | no | no |
-| 11 | Delete cocotb TB + veer_wrapper; re-verify; commit | pending | no | no |
-| 12 | `--tags` verified; phase table updated; final commit | pending | no | no |
+| 1 | Install RyuSim, capture CLI reality | done (2.0.5, not 2.0.4 — installer ships latest) | yes | n/a |
+| 2 | Vendor upstream tb_top into `tb/` | done (+ `__rtlmeter_top_include.vh` stub, see findings) | yes | no |
+| 3 | Verify DUT/program parity vs upstream | done (all clean) | yes | n/a |
+| 4 | Rewrite VeeR-EL2 Makefile (native) | done (plan fix: `veer_wrapper.sv` IS upstream, kept in sources) | yes | no |
+| 5 | Extend VeeR-EL2 config.yaml | done | yes | no |
+| 6 | `make compile` green | done (21.5 min, tb_top_sim ELF) | yes | no |
+| 7 | `make test-hello` → TEST_PASSED; commit design port | **BLOCKED — RyuSimAlt#306** (stale-assign bug breaks all VeeR branch targets; see `docs/findings/2026-08-08-ryusim-2.0.5-stale-assign-veer-branch-adder.md`) | no | no |
+| 8 | run_benchmarks.py native mode + `--tags` | done (import + `--help` verified; runner e2e blocked with Task 7) | partial | no |
+| 9 | Runner verified on VeeR-EL2 hello; commit runner | blocked (Task 7) | no | no |
+| 10 | Full workloads green (dhry/cmark/cmark_iccm) | blocked (Task 7) | no | no |
+| 11 | Delete cocotb TB + veer_wrapper; re-verify; commit | blocked (Task 7); **amended:** delete cocotb/ + stale `rtl/tb_top*.sv` duplicates only — `rtl/veer_wrapper.sv` is upstream and stays | no | no |
+| 12 | `--tags` verified; phase table updated; final commit | blocked (Task 7) | no | no |
+
+**Phase stopped 2026-08-08 at the Task 6/7 gate** per §Troubleshooting ("validation findings are the product"): RyuSim 2.0.5 miscomputes every carry-out taken-branch target in VeeR (`rvbradder` stale-`cout`), minimal 20-line reproducer filed as [Seiraiyu/RyuSimAlt#306](https://github.com/Seiraiyu/RyuSimAlt/issues/306). Port + runner work is committed (not pushed); resume at Task 7 (`make test-hello`) once a fixed RyuSim ships.
 
 ---
 
