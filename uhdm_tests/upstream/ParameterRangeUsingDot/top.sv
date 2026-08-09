@@ -1,5 +1,7 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// NumPart=2 vs 8 pattern elements; corrected to 8
 package otp_ctrl_part_pkg; // verilog_lint: waive package-filename
-  parameter int NumPart = 2;
+  parameter int NumPart = 8;
   parameter int OtpByteAddrWidth = 11;
   parameter int ConstSelWidth = 3;
   typedef enum logic [ConstSelWidth-1:0] {

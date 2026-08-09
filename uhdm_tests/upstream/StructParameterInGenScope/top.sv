@@ -1,3 +1,5 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// undeclared 'PageW' -> 'InfoPageW' (the declared parameter)
 module top();
   parameter int InfoTypesWidth  = 5;
   parameter int AllPagesW       = 10;
@@ -27,6 +29,6 @@ module top();
 
   for (genvar i = 0; i < InfosPerBank; i++) begin : gen_info_priv
     localparam logic [InfoPageW-1:0] CurPage = 0;
-    localparam page_addr_t CurAddr = '{sel: InfoSel, addr: {Bank, PageW'(CurPage)}};
+    localparam page_addr_t CurAddr = '{sel: InfoSel, addr: {Bank, InfoPageW'(CurPage)}};
   end
 endmodule

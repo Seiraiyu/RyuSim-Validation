@@ -1,3 +1,5 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// instantiation requires port parens; stray ';' after endmodule removed
 package prim_util_pkg;
    function automatic int get_5();
       int result = 5;
@@ -11,6 +13,6 @@ endmodule // dut
 
 module top(output int o);
    import prim_util_pkg::*;
-   dut u_dut;
+   dut u_dut();
    assign o = get_5();
-endmodule; // top
+endmodule // top

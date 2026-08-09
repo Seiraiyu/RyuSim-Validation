@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/MemoryInGenblock
 expected: fail
-reason: 'RyuSim 2.0.5: Warning: Compilation produced 1 error(s) (continuing because
-  --top top is specified; errors are outside the top hierarchy)'
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-BUG: invisible error + false 'outside hierarchy'\
+  \ + legacy sv_tri_resolve overload \u2014 RyuSimAlt#309"

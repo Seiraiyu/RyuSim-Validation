@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/NestedStructArrayParameterInitializedByPatternPassedAsPort
 expected: fail
-reason: 'RyuSim 2.0.5: /tmp/tmp.ElLSf4xECD/top.cpp:40:31: error: no viable overloaded
-  ''='''
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-BUG: struct-array pattern port codegen \u2014\
+  \ RyuSimAlt#318"

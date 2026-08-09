@@ -1,3 +1,5 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// undeclared 'o' -> 'o1'; $dumpvars first arg is the levels count
 module top(input logic clk, output int o1, output int o2, output int o3);
    real r = 0;
    int i = 0;
@@ -13,15 +15,15 @@ module top(input logic clk, output int o1, output int o2, output int o3);
 
     always @(posedge clk or negedge clk) begin
         if (clk) begin
-            `TEST($rose(clk));
-            `TEST($past(clk) == 0);
+            `TEST($rose(clk, @(posedge clk)));
+            `TEST($past(clk, , , @(posedge clk)) == 0);
         end
         else begin
-            `TEST($fell(clk));
-            `TEST($past(clk) == 1);
+            `TEST($fell(clk, @(negedge clk)));
+            `TEST($past(clk, , , @(negedge clk)) == 1);
         end
-        `TEST($changed(clk));
-        `TEST(!$stable(clk));
+        `TEST($changed(clk, @(posedge clk or negedge clk)));
+        `TEST(!$stable(clk, @(posedge clk or negedge clk)));
         o1 = $random;
         o2 = $urandom;
         o3 = $urandom_range(4, 8);
@@ -78,7 +80,7 @@ module top(input logic clk, output int o1, output int o2, output int o3);
         $dumpall;
         $dumplimit(1024);
         $dumpflush;
-        $dumpvars(clk, o);
+        $dumpvars(1, clk, o1);
         $dumpon;
         $dumpoff;
 

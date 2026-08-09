@@ -9,5 +9,4 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/TaskOutputArgument
 expected: fail
-reason: 'RyuSim 2.0.5: top.sv:9:24: error: cannot assign to a net within a procedural
-  context'
+reason: "RyuSim 2.0.5 \u2014 STRICT-OK: procedural assignment to a net (LRM 10.3)"

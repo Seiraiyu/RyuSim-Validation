@@ -9,4 +9,8 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/SystemFunctions
 expected: fail
-reason: 'RyuSim 2.0.5: top.sv:81:24: error: use of undeclared identifier ''o'''
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-GAP: $frewind not implemented (LRM 21.3.4) \u2014\
+  \ RyuSimAlt#323"
+patched: true
+patch_note: upstream invalid parts repaired (undeclared o, sampled-value clocking);
+  remaining failure is the RyuSim gap

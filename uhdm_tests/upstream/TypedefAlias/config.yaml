@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/TypedefAlias
 expected: fail
-reason: 'RyuSim 2.0.5: dut.v:25:13: error: no implicit conversion from ''third_alias_t''
-  (aka ''logic[7:0]'') to ''alias_t'' (aka ''enum_t''); explicit conversion exists, '
+reason: "RyuSim 2.0.5 \u2014 STRICT-OK: alias to enum type still requires explicit\
+  \ conversion (LRM 6.19.3)"

@@ -41,6 +41,14 @@ def parse_makefile(mk_path):
         m = re.match(r"\s*TOP_MODULE\s*:?=\s*(\S+)", line)
         if m:
             top_module = m.group(1)
+        # Some tests pass extra SV sources via VERILATOR_FLAGS
+        # (e.g. ParameterDoubleUnderscoreInSvFrontend's top.sv).
+        m = re.match(r"\s*VERILATOR_FLAGS\s*:?=\s*(.+)", line)
+        if m:
+            for tok in m.group(1).split():
+                if tok.endswith((".sv", ".v")):
+                    top_files.append(
+                        tok.replace("$(TEST_DIR)/", "").replace("$(TEST_DIR)", "."))
     return top_files, top_module
 
 
@@ -97,7 +105,6 @@ def main():
 
         dest = args.dest / name
         dest.mkdir(parents=True, exist_ok=True)
-        copy_sources(tdir, dest)
 
         cfg_path = dest / "config.yaml"
         prior = {}
@@ -106,6 +113,11 @@ def main():
                 prior = yaml.safe_load(cfg_path.read_text()) or {}
             except yaml.YAMLError:
                 prior = {}
+
+        # Locally patched tests (invalid upstream sources repaired in-repo)
+        # keep their sources; only provenance/config metadata is refreshed.
+        if not prior.get("patched"):
+            copy_sources(tdir, dest)
 
         cfg = {
             "name": name,
@@ -123,6 +135,9 @@ def main():
         }
         if "reason" in prior:
             cfg["reason"] = prior["reason"]
+        if prior.get("patched"):
+            cfg["patched"] = True
+            cfg["sources"] = prior.get("sources", cfg["sources"])
         cfg_path.write_text(yaml.safe_dump(cfg, sort_keys=False))
         imported.append(name)
 

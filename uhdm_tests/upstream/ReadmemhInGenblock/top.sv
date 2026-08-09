@@ -1,3 +1,5 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// $readmemh must be procedural; wrapped in initial
 module top #(
   parameter int N   = 8,
   parameter int DW  = 32
@@ -11,7 +13,7 @@ module top #(
   logic [DW-1:0] data_buf_c [N];
   logic [DW-1:0] data_buf_e [N];
 
-  $readmemh("mem_file.txt", mem);
+  initial $readmemh("mem_file.txt", mem);
 
   for (genvar i = 0; i < Instances; i++) begin : gen_test_a
     for (genvar j = 0; j < Instances; j++) begin : gen_input_bufs
@@ -31,11 +33,15 @@ module top #(
       logic [DW-1:0] data_buf_db [N];
       for (genvar k = 0; k < Instances; k++) begin : gen_data_bufs
         logic [DW-1:0] data_buf_dc [N];
-            $readmemh("mem_file.txt", data_buf_da);
-            $readmemh("mem_file.txt", data_buf_db);
-            $readmemh("mem_file.txt", data_buf_dc);
-            $readmemh("mem_file.txt", data_buf_e);
-            assign data_buf_b = mem;
+            initial begin // patched: $readmemh must be procedural
+              $readmemh("mem_file.txt", data_buf_da);
+              $readmemh("mem_file.txt", data_buf_db);
+              $readmemh("mem_file.txt", data_buf_dc);
+              $readmemh("mem_file.txt", data_buf_e);
+            end
+            if (i == 0 && j == 0 && k == 0) begin : gen_buf_b // patched: single driver (LRM 10.3.2)
+              assign data_buf_b = mem;
+            end
       end
     end
   end

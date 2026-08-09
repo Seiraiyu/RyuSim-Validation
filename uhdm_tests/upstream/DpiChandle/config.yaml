@@ -9,5 +9,4 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/DpiChandle
 expected: fail
-reason: 'RyuSim 2.0.5: top.sv:12:11: error: invalid operands to binary expression
-  (''chandle'' and ''int'')'
+reason: "RyuSim 2.0.5 \u2014 STRICT-OK: arithmetic on chandle is illegal (LRM 6.14)"

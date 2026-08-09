@@ -1,3 +1,5 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// binary '~&'/'~|' do not exist in SV (LRM Table 11-1); rewritten as ~(&)/~(|)
 module top
 (
     input [3:0] in,
@@ -6,8 +8,8 @@ module top
 );
     assign out_1 =  in[0] & in[1];
     assign out_2 =  in[0] | in[1];
-    assign out_3 =  in[0] ~& in[1];
-    assign out_4 =  in[0] ~| in[1];
+    assign out_3 = ~(in[0] & in[1]);
+    assign out_4 = ~(in[0] | in[1]);
     assign out_5 =  in[0] ^ in[1];
     assign out_6 =  in[0] ~^ in[1];
     assign out_7 =  in[0] ^~ in[1];

@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/ModuleAlways
 expected: fail
-reason: 'RyuSim 2.0.5: top.sv:2:4: error: ''always'' procedure does not advance time
-  and so will create a simulation deadlock'
+reason: "RyuSim 2.0.5 \u2014 STRICT-OK: zero-delay 'always' would deadlock; proactive\
+  \ diagnostic"

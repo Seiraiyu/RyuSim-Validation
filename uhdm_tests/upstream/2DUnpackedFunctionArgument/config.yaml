@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/2DUnpackedFunctionArgument
 expected: fail
-reason: 'RyuSim 2.0.5: /tmp/tmp.h072FppAQJ/top.cpp:47:46: error: no viable conversion
-  from ''std::vector<std::vector<core::Value4>>'' to ''core::Value4'''
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-BUG: unpacked-aggregate function-arg codegen \u2014\
+  \ RyuSimAlt#318"

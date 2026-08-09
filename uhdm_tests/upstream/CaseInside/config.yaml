@@ -9,4 +9,4 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/CaseInside
 expected: fail
-reason: "RyuSim 2.0.5: case-inside execution support pending \u2014 https://github.com/Seiraiyu/RyuSimAlt/issues/317"
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-GAP: case-inside execution pending \u2014 RyuSimAlt#317"

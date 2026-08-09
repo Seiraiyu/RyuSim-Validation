@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/InterfaceWithPort
 expected: fail
-reason: 'RyuSim 2.0.5: /tmp/tmp.n9ekRl6LaB/sim_sram_if.hpp:33:17: error: ''this''
-  cannot be implicitly captured in this context'
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-BUG: interface-with-port 'this' capture in generated\
+  \ header \u2014 RyuSimAlt#321"

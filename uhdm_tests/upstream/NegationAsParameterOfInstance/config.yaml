@@ -9,4 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/NegationAsParameterOfInstance
 expected: fail
-reason: 'RyuSim 2.0.5: top.sv:2:26: error: parameter declaration is missing an initializer'
+reason: "RyuSim 2.0.5 \u2014 STRICT-OK: parameter without default and never overridden\
+  \ (LRM 6.20.1); top compiled standalone"

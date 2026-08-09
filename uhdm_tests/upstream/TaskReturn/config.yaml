@@ -9,5 +9,5 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/TaskReturn
 expected: fail
-reason: 'RyuSim 2.0.5: clang++: error: linker command failed with exit code 1 (use
-  -v to see invocation)'
+reason: "RyuSim 2.0.5 \u2014 RYUSIM-BUG: package task definition not emitted, link\
+  \ fails \u2014 RyuSimAlt#320"
