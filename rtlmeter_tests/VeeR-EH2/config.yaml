@@ -3,11 +3,10 @@ source: rtlmeter
 tier: 1
 description: "Western Digital VeeR EH2 — dual-threaded RISC-V RV32IMC core (CHIPS Alliance)"
 
-# TEMPORARILY DISABLED: Blocked on RyuSim issue #21
-# See: https://github.com/Seiraiyu/RyuSimAlt/issues/21
-# Tracking: https://github.com/Seiraiyu/RyuSim-Validation/issues/1
-# Re-enable once RyuSim fixes the underlying issue
-enabled: false
+# Re-enabled 2026-08-09: RyuSimAlt#21 (genvar loop-unrolling explosion) is
+# fixed; full cocotb run passes under RyuSim 2.0.5 in ~59 min.
+# Timeout sized to ~1.5x observed runtime (3511s).
+timeout: 5400
 top_module: eh2_veer_wrapper
 upstream:
   repository: https://github.com/chipsalliance/Cores-VeeR-EH2.git
