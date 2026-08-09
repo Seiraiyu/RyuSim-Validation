@@ -1,0 +1,13 @@
+name: InterfaceWithPort
+mode: native
+level: compile
+top_module: top
+sources:
+- top.sv
+upstream:
+  repository: https://github.com/chipsalliance/UHDM-integration-tests.git
+  revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
+  path: tests/InterfaceWithPort
+expected: fail
+reason: 'RyuSim 2.0.5: /tmp/tmp.n9ekRl6LaB/sim_sram_if.hpp:33:17: error: ''this''
+  cannot be implicitly captured in this context'

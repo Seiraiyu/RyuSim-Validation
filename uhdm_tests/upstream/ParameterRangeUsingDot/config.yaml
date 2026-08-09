@@ -1,0 +1,13 @@
+name: ParameterRangeUsingDot
+mode: native
+level: compile
+top_module: top
+sources:
+- top.sv
+upstream:
+  repository: https://github.com/chipsalliance/UHDM-integration-tests.git
+  revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
+  path: tests/ParameterRangeUsingDot
+expected: fail
+reason: 'RyuSim 2.0.5: top.sv:41:47: error: assignment pattern for ''part_info_t$[2]''
+  requires 2 elements but 8 were provided'

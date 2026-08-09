@@ -1,0 +1,13 @@
+name: TypedefAlias
+mode: native
+level: compile
+top_module: dut
+sources:
+- dut.v
+upstream:
+  repository: https://github.com/chipsalliance/UHDM-integration-tests.git
+  revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
+  path: tests/TypedefAlias
+expected: fail
+reason: 'RyuSim 2.0.5: dut.v:25:13: error: no implicit conversion from ''third_alias_t''
+  (aka ''logic[7:0]'') to ''alias_t'' (aka ''enum_t''); explicit conversion exists, '

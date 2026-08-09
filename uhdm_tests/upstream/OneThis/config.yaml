@@ -1,0 +1,13 @@
+name: OneThis
+mode: native
+level: compile
+top_module: top
+sources:
+- top.sv
+upstream:
+  repository: https://github.com/chipsalliance/UHDM-integration-tests.git
+  revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
+  path: tests/OneThis
+expected: fail
+reason: 'RyuSim 2.0.5: /tmp/tmp.enQFjVw6F6/ryu_classes.hpp:69:37: error: no type named
+  ''DisableSignal'' in namespace ''ryusim::runtime'''

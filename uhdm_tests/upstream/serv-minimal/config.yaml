@@ -1,0 +1,15 @@
+name: serv-minimal
+mode: native
+level: compile
+top_module: servant_sim
+sources:
+- src/serv_1.1.0/rtl/serv_ctrl.v
+- src/serv_1.1.0/rtl/serv_top.v
+- src/serv_1.1.0/rtl/serv_rf_top.v
+- src/servant_1.1.0/servant/servant.v
+- src/servant_1.1.0/bench/servant_sim.v
+upstream:
+  repository: https://github.com/chipsalliance/UHDM-integration-tests.git
+  revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
+  path: tests/serv-minimal
+expected: pass

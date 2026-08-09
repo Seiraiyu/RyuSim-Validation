@@ -1,0 +1,11 @@
+name: fsm_using_always
+mode: native
+level: compile
+top_module: fsm_using_always
+sources:
+- dut.v
+upstream:
+  repository: https://github.com/chipsalliance/UHDM-integration-tests.git
+  revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
+  path: tests/fsm_using_always
+expected: pass

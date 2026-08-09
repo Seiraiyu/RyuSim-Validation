@@ -19,7 +19,7 @@ The repo consolidates content ported from three upstream sources, preserving the
 |-----------|------------|---------|
 | `rtlmeter_tests/` | [verilator/rtlmeter](https://github.com/verilator/rtlmeter) | Real-world processor benchmarks (VeeR, Vortex, XuanTie, BlackParrot) |
 | `cocotb_tests/` | [cocotb/cocotb/tests/designs](https://github.com/cocotb/cocotb/tree/master/tests/designs) | Reference test modules (uart2bus, array_module, sample_module, etc.) |
-| `uhdm_tests/` | [chipsalliance/UHDM-integration-tests](https://github.com/chipsalliance/UHDM-integration-tests) | SystemVerilog construct coverage (27 tests today; design targets ~280 across 5 categories — see `docs/2025-12-15-port-uhdm-integration-tests-design.md`) |
+| `uhdm_tests/` | [chipsalliance/UHDM-integration-tests](https://github.com/chipsalliance/UHDM-integration-tests) | SystemVerilog construct coverage: 347 vendored upstream tests (`upstream/`, full suite @ 1bd3e0bb minus 16 infra/big-design dirs) + 27 authored tests across 5 categories |
 
 ### Per-design/test structure
 
@@ -88,17 +88,17 @@ python run_tests.py --level 2                # VCD comparison only
 
 ## Test Categories (SV construct tests)
 
-Counts are actual in-tree tests / design-doc target. Backfilling toward the
-target is open work — the 2026-08-08 sweeps showed real-world designs
-catching construct-level bugs this suite missed.
-
 | Category | Count | What it tests |
 |----------|-------|---------------|
-| `combinational/` | 15 / ~120 | `assign`, `always_comb`, operators, arrays, structs, enums, generate, interfaces |
-| `sequential/` | 5 / ~60 | `always_ff`, `always_latch`, FSMs, memories, pipelines, clock domain |
-| `hierarchy/` | 3 / ~40 | Module instantiation, parameters, packages, multi-file references |
-| `advanced/` | 2 / ~30 | Typedefs, assertions (synthesis subset), `always @*`, multi-driven nets |
-| `unsupported/` | 2 / ~30 | Expect-fail: `initial`, `fork`/`join`, classes, `$display` — validates error messages |
+| `upstream/` | 347 | Full vendored UHDM-integration-tests suite, native mode (`ryusim compile` per config.yaml; no cocotb). 309 expected-pass + 38 `expected: fail` with per-test `reason:` tracking RyuSim gaps/strictness. Re-vendor with `tools/import_uhdm_tests.py`. |
+| `combinational/` | 15 | `assign`, `always_comb`, operators, arrays, structs, enums, generate, interfaces |
+| `sequential/` | 5 | `always_ff`, `always_latch`, FSMs, memories, pipelines, clock domain |
+| `hierarchy/` | 3 | Module instantiation, parameters, packages, multi-file references |
+| `advanced/` | 2 | Typedefs, assertions (synthesis subset), `always @*`, multi-driven nets |
+| `unsupported/` | 2 | Expect-fail: `initial`, `fork`/`join`, classes, `$display` — validates error messages |
+
+`run_tests.py --jobs N` runs tests concurrently (upstream tests are
+compile-level and directory-isolated; `-j 14` sweeps the suite in minutes).
 
 ## Validation Levels
 

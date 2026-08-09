@@ -19,6 +19,7 @@ CATEGORIES = [
     "hierarchy",
     "advanced",
     "unsupported",
+    "upstream",
 ]
 
 
@@ -60,6 +61,73 @@ def discover_tests(category=None):
     return tests
 
 
+def run_native_test(test_path, config, test_name, category, level, start_time):
+    """Run a native-mode test: `ryusim compile` per config.yaml, no cocotb.
+
+    Vendored upstream tests (uhdm_tests/upstream/) validate at compile level:
+    pass = compile exit 0. `expected: fail` inverts the check — those tests
+    track known RyuSim issues; an unexpected pass means the issue was fixed
+    and the expectation should be flipped.
+    """
+    top_module = config.get("top_module", "top")
+    sources = config.get("sources") or []
+    expected = config.get("expected", "pass")
+
+    missing = [s for s in sources if not (test_path / s).exists()]
+    if not sources or missing:
+        return {
+            "test": test_name,
+            "path": str(test_path),
+            "category": category,
+            "level": level,
+            "status": "error",
+            "duration": time.perf_counter() - start_time,
+            "stdout": "",
+            "stderr": f"missing sources: {missing or 'none listed'}",
+        }
+
+    try:
+        result = subprocess.run(
+            ["ryusim", "compile", *sources, "--top", top_module, "-I", "."],
+            capture_output=True,
+            text=True,
+            cwd=str(test_path),
+            timeout=300,
+        )
+        compiled = result.returncode == 0
+        stdout, stderr = result.stdout, result.stderr
+    except subprocess.TimeoutExpired:
+        compiled, stdout, stderr = False, "", "Compile timed out (300s)"
+    except FileNotFoundError:
+        return {
+            "test": test_name,
+            "path": str(test_path),
+            "category": category,
+            "level": level,
+            "status": "error",
+            "duration": time.perf_counter() - start_time,
+            "stdout": "",
+            "stderr": "ryusim not found on PATH",
+        }
+
+    if expected == "fail":
+        status = "expected_fail" if not compiled else "failed"
+    else:
+        status = "passed" if compiled else "failed"
+
+    return {
+        "test": test_name,
+        "path": str(test_path),
+        "category": category,
+        "level": level,
+        "status": status,
+        "expected": expected,
+        "duration": time.perf_counter() - start_time,
+        "stdout": stdout[-2000:],
+        "stderr": stderr[-2000:],
+    }
+
+
 def run_test(test_path, level=1):
     """Run a single SV construct test.
 
@@ -91,6 +159,11 @@ def run_test(test_path, level=1):
         }
 
     top_module = config.get("top_module", "dut")
+
+    if config.get("mode") == "native":
+        return run_native_test(test_path, config, test_name, category, level,
+                               start_time)
+
     is_unsupported = category == "unsupported" or config.get("expect_fail", False)
 
     if is_unsupported:
@@ -287,6 +360,7 @@ def main():
     parser.add_argument("--output", type=str, help="Output JSON file path")
     parser.add_argument("--ryusim-version", type=str, help="Expected RyuSim version")
     parser.add_argument("--limit", type=int, help="Max number of tests to run")
+    parser.add_argument("--jobs", "-j", type=int, default=1, help="Run tests concurrently (default: 1)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Print per-test progress to stderr")
     args = parser.parse_args()
 
@@ -312,14 +386,30 @@ def main():
     timestamp = datetime.now(timezone.utc).isoformat()
 
     results = []
-    for test in tests:
-        result = run_test(test, level=args.level)
-        results.append(result)
-        if args.verbose:
-            print(
-                f"  {result['test']}: {result['status']} ({result['duration']:.2f}s)",
-                file=sys.stderr,
-            )
+    if args.jobs > 1:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            futures = {pool.submit(run_test, t, level=args.level): t for t in tests}
+            ordered = {}
+            from concurrent.futures import as_completed
+            for fut in as_completed(futures):
+                result = fut.result()
+                ordered[futures[fut]] = result
+                if args.verbose:
+                    print(
+                        f"  {result['test']}: {result['status']} ({result['duration']:.2f}s)",
+                        file=sys.stderr,
+                    )
+            results = [ordered[t] for t in tests if t in ordered]
+    else:
+        for test in tests:
+            result = run_test(test, level=args.level)
+            results.append(result)
+            if args.verbose:
+                print(
+                    f"  {result['test']}: {result['status']} ({result['duration']:.2f}s)",
+                    file=sys.stderr,
+                )
 
     # Group by category for summary
     categories = {}
