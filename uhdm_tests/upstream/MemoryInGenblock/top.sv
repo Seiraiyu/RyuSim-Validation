@@ -1,3 +1,5 @@
+// PATCHED (RyuSim-Validation): upstream source was invalid SV; minimal repair below preserves test intent.
+// multi-driven variable across generate instances; guarded to one driver
 module top #(
   parameter int N   = 8,
   parameter int DW  = 32
@@ -26,7 +28,9 @@ module top #(
     for (genvar j = 0; j < Instances; j++) begin : gen_input_bufs
       for (genvar k = 0; k < Instances; k++) begin : gen_data_bufs
         logic [DW-1:0] data_buf_d [N];
-            assign data_buf_b = mem;
+            if (i == 0 && j == 0 && k == 0) begin : gen_buf_b // patched: single driver (LRM 10.3.2)
+              assign data_buf_b = mem;
+            end
       end
     end
   end

@@ -8,5 +8,4 @@ upstream:
   repository: https://github.com/chipsalliance/UHDM-integration-tests.git
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/CaseInside
-expected: fail
-reason: "RyuSim 2.0.5 \u2014 RYUSIM-GAP: case-inside execution pending \u2014 RyuSimAlt#317"
+expected: pass

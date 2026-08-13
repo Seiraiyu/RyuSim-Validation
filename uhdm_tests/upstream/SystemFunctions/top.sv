@@ -99,7 +99,7 @@ module top(input logic clk, output int o1, output int o2, output int o3);
         $fwriteh(fd, "i=%0d\n", i);
         $fwriteo(fd, "i=%0d\n", i);
         $rewind(fd);
-        $frewind(fd);
+        // $frewind(fd); // patched out: nonstandard (LRM has $rewind); some sims tolerate it
         $fseek(fd, 0, 0);
         $fread(i, fd);
         $feof(fd);
