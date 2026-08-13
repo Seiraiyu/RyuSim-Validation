@@ -66,7 +66,10 @@ TB_SOURCES = tb/tb_top_pkg.sv tb/tb_top.sv
 
 # Flag spellings verified against `ryusim compile --help` in Task 1.
 # -Itb resolves __rtlmeter_top_include.vh (stubbed; see tb/).
-RYUSIM_FLAGS = --top $(TB_TOP) -Irtl -Irtl/default -Itb --jobs 4
+# --no-x-init matches the rtlmeter reference semantics (Verilator is
+# 2-state/zero-init); under IEEE X-init the hello run does not complete
+# in >40 min vs ~5 s zero-init — tracked upstream (RyuSimAlt X-init issue).
+RYUSIM_FLAGS = --top $(TB_TOP) -Irtl -Irtl/default -Itb --jobs 4 --no-x-init
 
 # Per-test plusargs — upstream descriptor.yaml, default configuration.
 ARGS_hello =
