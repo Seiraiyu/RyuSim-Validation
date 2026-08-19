@@ -24,11 +24,11 @@
 | 7 | `make test-hello` → TEST_PASSED; commit design port | done (RyuSim 2.0.8, #306 fixed; --no-x-init pinned, X-init tracked as #330) | yes | yes |
 | 8 | run_benchmarks.py native mode + `--tags` | done | yes | yes |
 | 9 | Runner verified on VeeR-EL2 hello; commit runner | done (mode: native, hello passed; --tags sanity verified) | yes | yes |
-| 10 | Full workloads green (dhry/cmark/cmark_iccm) | **BLOCKED — RyuSimAlt#332** (DCCM stack store lost; dhrystone fails at cycle ~467) | no | no |
+| 10 | Full workloads green (dhry/cmark/cmark_iccm) | **BLOCKED — RyuSimAlt#346** (throughput: ~34-46 cyc/s on VeeR; dhrystone needs ~2.5 days. #332 fixed & verified — execution is functionally correct per trace) | no | no |
 | 11 | Delete cocotb TB + veer_wrapper; re-verify; commit | blocked (Task 10 / #332); **amended:** delete cocotb/ + stale `rtl/tb_top*.sv` duplicates only — `rtl/veer_wrapper.sv` is upstream and stays | no | no |
 | 12 | `--tags` verified; phase table updated; final commit | --tags verified; final commit blocked (Task 10 / #332) | partial | no |
 
-**Update 2026-08-13 (RyuSim 2.0.8):** #306 fixed — hello TEST_PASSED end-to-end, runner + --tags verified. Phase now blocked at Task 10 by RyuSimAlt#332 (dhrystone DCCM store loss). Originally: **Phase stopped 2026-08-08 at the Task 6/7 gate** per §Troubleshooting ("validation findings are the product"): RyuSim 2.0.5 miscomputes every carry-out taken-branch target in VeeR (`rvbradder` stale-`cout`), minimal 20-line reproducer filed as [Seiraiyu/RyuSimAlt#306](https://github.com/Seiraiyu/RyuSimAlt/issues/306). Port + runner work is committed (not pushed); resume at Task 7 (`make test-hello`) once a fixed RyuSim ships.
+**Update 2026-08-19 (RyuSim 2.0.10):** all correctness blockers fixed and verified (18/18 issues); workloads now blocked purely by simulation throughput (RyuSimAlt#346: ~34-46 cyc/s, measured on 2.0.8 and 2.0.10 — not a regression). hello remains the only completable workload. Earlier: **Update 2026-08-13 (RyuSim 2.0.8):** #306 fixed — hello TEST_PASSED end-to-end, runner + --tags verified. Phase now blocked at Task 10 by RyuSimAlt#332 (dhrystone DCCM store loss). Originally: **Phase stopped 2026-08-08 at the Task 6/7 gate** per §Troubleshooting ("validation findings are the product"): RyuSim 2.0.5 miscomputes every carry-out taken-branch target in VeeR (`rvbradder` stale-`cout`), minimal 20-line reproducer filed as [Seiraiyu/RyuSimAlt#306](https://github.com/Seiraiyu/RyuSimAlt/issues/306). Port + runner work is committed (not pushed); resume at Task 7 (`make test-hello`) once a fixed RyuSim ships.
 
 ---
 
