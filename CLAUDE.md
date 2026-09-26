@@ -40,7 +40,7 @@ SIM = ryusim
 VERILOG_SOURCES = $(wildcard rtl/*.sv)
 TOPLEVEL = module_name
 MODULE = test_module_name
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim
 ```
 
 ## Key RyuSim Constraints
@@ -67,8 +67,8 @@ async def load_hex(mem_array, hex_file):
 # Install RyuSim
 curl -fsSL https://ryusim.seiraiyu.com/install.sh | bash
 
-# Install cocotb (Seiraiyu fork with RyuSim backend support)
-pip install git+https://github.com/Seiraiyu/cocotb.git
+# Install stock cocotb + RyuSim plugin (cocotbext-ryusim)
+pip install -r requirements.txt
 
 # Run a single design's tests via cocotb
 cd rtlmeter_tests/VeeR-EL2 && make      # uses SIM=ryusim from Makefile
@@ -90,7 +90,7 @@ python run_tests.py --level 2                # VCD comparison only
 
 | Category | Count | What it tests |
 |----------|-------|---------------|
-| `upstream/` | 347 | Full vendored UHDM-integration-tests suite, native mode (`ryusim compile` per config.yaml; no cocotb). 309 expected-pass + 38 `expected: fail` with per-test `reason:` tracking RyuSim gaps/strictness. Re-vendor with `tools/import_uhdm_tests.py`. |
+| `upstream/` | 347 | Full vendored UHDM-integration-tests suite, native mode (`ryusim compile` per config.yaml; no cocotb). 326 expected-pass + 21 `expected: fail` with per-test `reason:` tracking RyuSim gaps/strictness. Re-vendor with `tools/import_uhdm_tests.py`. |
 | `combinational/` | 15 | `assign`, `always_comb`, operators, arrays, structs, enums, generate, interfaces |
 | `sequential/` | 5 | `always_ff`, `always_latch`, FSMs, memories, pipelines, clock domain |
 | `hierarchy/` | 3 | Module instantiation, parameters, packages, multi-file references |
@@ -115,7 +115,7 @@ GitHub Actions workflows with matrix builds across Linux distros. Each workflow 
 |------|---------|
 | `ryusim` | Installed binary — the simulator under test |
 | Python 3.10+ | Test runners and cocotb |
-| `cocotb` | [Seiraiyu fork](https://github.com/Seiraiyu/cocotb) with RyuSim backend — working toward an upstream PR to add RyuSim support |
+| `cocotb` + `cocotbext-ryusim` | Stock cocotb 2.1; [cocotbext-ryusim](https://pypi.org/project/cocotbext-ryusim/) adds `SIM=ryusim` (Makefiles include `cocotbext-ryusim-config --makefiles`) |
 | `Verilator` | Reference simulator for benchmarks and golden VCD generation |
 | `vcddiff` | VCD waveform comparison (Level 2 validation) |
 | RISC-V toolchain | Compile test programs (Dhrystone, CoreMark) for processor benchmarks |

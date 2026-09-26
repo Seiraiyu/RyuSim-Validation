@@ -5,4 +5,4 @@ VERILOG_SOURCES = dut.sv
 TOPLEVEL = reduction
 MODULE = test_reduction
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim

@@ -3,3 +3,6 @@ source: cocotb
 tier: 1
 description: "Basic module hierarchy with counter and two sub-modules (add +2 and +5)"
 top_module: basic_hierarchy_module
+expected_fail:
+  platforms: [clang-14]
+  reason: "RyuSim 2.1.18 — BUG RyuSimAlt#411: FlatValue::operator== returns auto; clang 14 rejects the C++20 rewritten != in async-reset port propagation"

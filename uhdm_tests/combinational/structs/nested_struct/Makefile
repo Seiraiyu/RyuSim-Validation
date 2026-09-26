@@ -5,4 +5,4 @@ VERILOG_SOURCES = dut.sv
 TOPLEVEL = nested_struct
 MODULE = test_nested_struct
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim

@@ -2,7 +2,10 @@
 """run_benchmarks.py — Discover and run RyuSim benchmarks."""
 
 import argparse
+import functools
 import json
+import platform
+import re
 import subprocess
 import sys
 import time
@@ -16,6 +19,44 @@ BENCHMARK_DIRS = {
     "cocotb": Path("cocotb_tests"),
 }
 DEFAULT_TIMEOUT = 900  # 15 minutes — large designs need 5-10min to compile on CI
+
+
+@functools.cache
+def host_platform():
+    """Tags that `expected_fail.platforms` matches against: os-release
+    '<ID>-<VERSION_ID>' (e.g. 'debian-12', as in CI matrix names) and the
+    clang++ major that RyuSim builds with (e.g. 'clang-14')."""
+    tags = set()
+    try:
+        info = platform.freedesktop_os_release()
+        tags.add(f"{info.get('ID', '')}-{info.get('VERSION_ID', '')}")
+    except (OSError, AttributeError):  # AttributeError: Python < 3.10 (Rocky 9)
+        pass
+    try:
+        out = subprocess.run(["clang++", "--version"], capture_output=True, text=True).stdout
+        if m := re.search(r"clang version (\d+)", out):
+            tags.add(f"clang-{m.group(1)}")
+    except FileNotFoundError:
+        pass
+    return frozenset(tags)
+
+
+def apply_expected_fail(result, design_path, host):
+    """`expected_fail: {platforms: [...], reason: ...}` in config.yaml inverts the
+    check on those platforms (all platforms if `platforms` is omitted) — like
+    run_tests.py's `expected: fail`, it tracks a known RyuSim issue, and an
+    unexpected pass means the issue was fixed."""
+    try:
+        with open(design_path / "config.yaml") as f:
+            xfail = (yaml.safe_load(f) or {}).get("expected_fail") or {}
+    except (FileNotFoundError, yaml.YAMLError):
+        return
+    if xfail and ("platforms" not in xfail or host & set(xfail["platforms"])):
+        result["expected_fail_reason"] = xfail.get("reason", "")
+        if result["status"] == "passed":
+            result["status"] = "failed"
+        elif result["status"] == "failed":
+            result["status"] = "expected_fail"
 
 
 def get_ryusim_version():
@@ -356,6 +397,7 @@ def main():
         print(f"Warning: expected ryusim {args.ryusim_version}, got {ryusim_version}", file=sys.stderr)
     timestamp = datetime.now(timezone.utc).isoformat()
 
+    host = host_platform()
     results = []
     for design in designs:
         result = run_benchmark(
@@ -365,6 +407,7 @@ def main():
             timeout_override=args.timeout,
             tags=[t.strip() for t in args.tags.split(",")] if args.tags else None,
         )
+        apply_expected_fail(result, design, host)
         results.append(result)
         if args.verbose:
             print(
@@ -376,6 +419,7 @@ def main():
         "total": len(results),
         "passed": sum(1 for r in results if r["status"] == "passed"),
         "failed": sum(1 for r in results if r["status"] == "failed"),
+        "expected_fail": sum(1 for r in results if r["status"] == "expected_fail"),
         "error": sum(1 for r in results if r["status"] == "error"),
         "ryusim_version": ryusim_version,
         "timestamp": timestamp,

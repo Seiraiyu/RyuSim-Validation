@@ -5,4 +5,4 @@ VERILOG_SOURCES = dut.sv
 TOPLEVEL = for_generate
 MODULE = test_for_generate
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim

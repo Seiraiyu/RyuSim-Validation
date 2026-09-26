@@ -5,4 +5,4 @@ VERILOG_SOURCES = dut.sv
 TOPLEVEL = shift
 MODULE = test_shift
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim

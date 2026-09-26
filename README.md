@@ -1,6 +1,6 @@
 # RyuSim-Validation
 
-A consolidated test and benchmark suite for validating [RyuSim](https://github.com/Seiraiyu/RyuSimAlt), a hardware simulator that compiles synthesizable SystemVerilog to C++ and runs simulations via [cocotb](https://github.com/Seiraiyu/cocotb).
+A consolidated test and benchmark suite for validating [RyuSim](https://github.com/Seiraiyu/RyuSimAlt), a hardware simulator that compiles synthesizable SystemVerilog to C++ and runs simulations via [cocotb](https://www.cocotb.org) (stock, via [cocotbext-ryusim](https://pypi.org/project/cocotbext-ryusim/)).
 
 ## What's Inside
 
@@ -33,9 +33,6 @@ uart2bus, sample_module, array_module, basic_hierarchy_module, multi_dimension_a
 ```bash
 # Install RyuSim
 curl -fsSL https://ryusim.seiraiyu.com/install.sh | bash
-
-# Install cocotb (Seiraiyu fork with RyuSim backend)
-pip install git+https://github.com/Seiraiyu/cocotb.git
 
 # Install Python dependencies
 pip install -r requirements.txt
@@ -154,7 +151,7 @@ RyuSim compiles **synthesizable SystemVerilog only**. This means:
 |------|---------|
 | [RyuSim](https://github.com/Seiraiyu/RyuSimAlt) | Simulator under test |
 | Python 3.10+ | Test runners and cocotb |
-| [cocotb](https://github.com/Seiraiyu/cocotb) (Seiraiyu fork) | Python testbench framework with RyuSim backend |
+| [cocotb](https://www.cocotb.org) 2.1 + [cocotbext-ryusim](https://pypi.org/project/cocotbext-ryusim/) | Stock cocotb; the plugin adds `SIM=ryusim` |
 | [Verilator](https://verilator.org) | Reference simulator for golden VCDs |
 | vcddiff | VCD waveform comparison (Level 2) |
 

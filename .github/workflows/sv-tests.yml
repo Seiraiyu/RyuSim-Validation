@@ -95,9 +95,14 @@ jobs:
       - name: Install system dependencies (native Ubuntu)
         if: ${{ !matrix.container }}
         run: |
+          # libstdc++-13 needs Clang >= 15 for its <chrono> consteval code; the
+          # 22.04 runner ships Clang 14. Same Clang 18 setup as nightly.yml.
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test || true
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang verilator zlib1g-dev libssl-dev libstdc++-13-dev
+          sudo apt-get install -y cmake ninja-build verilator zlib1g-dev libssl-dev libstdc++-13-dev
+          wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s -- 18
+          sudo ln -sf /usr/bin/clang-18 /usr/bin/clang
+          sudo ln -sf /usr/bin/clang++-18 /usr/bin/clang++
 
       - name: Install RyuSim
         run: bash setup_ryusim.sh
