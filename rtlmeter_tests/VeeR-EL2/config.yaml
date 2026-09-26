@@ -50,3 +50,5 @@ tests:
     args: ["+iterations=22"]
     tags: [standard]
     description: "CoreMark benchmark (ICCM execution)"
+expected_fail:
+  reason: "RyuSim 2.1.18 — BUG RyuSimAlt#412: always_ff @(el2_mem_export.clk) (edge-less event control, tb_top.sv:1748/1922) aborts typed codegen (regressed 2.1.10 -> 2.1.13)"

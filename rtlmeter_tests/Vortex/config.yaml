@@ -46,3 +46,5 @@ notes:
   excluded_files:
     - "tb.sv — upstream testbench using initial blocks, #delays, DPI-C, $readmemh"
     - "dpi/memory.cpp — DPI-C memory model (replaced by cocotb testbench)"
+expected_fail:
+  reason: "RyuSim 2.1.18 — BUG RyuSimAlt#413: combinational cycle of __ryu_st_* temps in fpnew div_sqrt control_mvp never settles at t=0 (regressed 2.1.10 -> 2.1.13)"

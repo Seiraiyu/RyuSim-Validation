@@ -30,14 +30,15 @@ def host_platform():
 
 def apply_expected_fail(result, design_path, host):
     """`expected_fail: {platforms: [...], reason: ...}` in config.yaml inverts the
-    check on those platforms — like run_tests.py's `expected: fail`, it tracks a
-    known RyuSim issue, and an unexpected pass means the issue was fixed."""
+    check on those platforms (all platforms if `platforms` is omitted) — like
+    run_tests.py's `expected: fail`, it tracks a known RyuSim issue, and an
+    unexpected pass means the issue was fixed."""
     try:
         with open(design_path / "config.yaml") as f:
             xfail = (yaml.safe_load(f) or {}).get("expected_fail") or {}
     except (FileNotFoundError, yaml.YAMLError):
         return
-    if host in xfail.get("platforms", []):
+    if xfail and host in xfail.get("platforms", [host]):
         result["expected_fail_reason"] = xfail.get("reason", "")
         if result["status"] == "passed":
             result["status"] = "failed"
