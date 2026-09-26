@@ -11,6 +11,8 @@ from pathlib import Path
 
 import yaml
 
+from run_benchmarks import host_platform
+
 TESTS_DIR = Path("uhdm_tests")
 
 CATEGORIES = [
@@ -72,6 +74,8 @@ def run_native_test(test_path, config, test_name, category, level, start_time):
     top_module = config.get("top_module", "top")
     sources = config.get("sources") or []
     expected = config.get("expected", "pass")
+    if host_platform() in (config.get("expected_fail") or {}).get("platforms", []):
+        expected = "fail"
 
     missing = [s for s in sources if not (test_path / s).exists()]
     if not sources or missing:

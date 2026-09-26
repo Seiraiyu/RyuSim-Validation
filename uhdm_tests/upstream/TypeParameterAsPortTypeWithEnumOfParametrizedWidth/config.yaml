@@ -9,3 +9,6 @@ upstream:
   revision: 1bd3e0bb9797778570423f44dc848e1d14c6d75f
   path: tests/TypeParameterAsPortTypeWithEnumOfParametrizedWidth
 expected: pass
+expected_fail:
+  platforms: [debian-12]
+  reason: "RyuSim 2.1.18 — BUG RyuSimAlt#411: FlatValue::operator== returns auto; clang 14 rejects the C++20 rewritten !="
