@@ -78,4 +78,4 @@ MODULE = test_veer_eh1
 
 export PYTHONPATH := $(CURDIR)/cocotb
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim

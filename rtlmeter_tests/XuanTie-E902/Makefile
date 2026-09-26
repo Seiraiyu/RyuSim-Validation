@@ -29,4 +29,4 @@ MODULE = test_xuantie_e902
 
 export PYTHONPATH := $(CURDIR)/cocotb
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim

@@ -347,4 +347,4 @@ MODULE = test_blackparrot
 
 export PYTHONPATH := $(CURDIR)/cocotb
 
-include $(shell cocotb-config --makefiles)/Makefile.sim
+include $(shell cocotbext-ryusim-config --makefiles)/Makefile.sim
