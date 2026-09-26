@@ -2,8 +2,10 @@
 """run_benchmarks.py — Discover and run RyuSim benchmarks."""
 
 import argparse
+import functools
 import json
 import platform
+import re
 import subprocess
 import sys
 import time
@@ -19,13 +21,24 @@ BENCHMARK_DIRS = {
 DEFAULT_TIMEOUT = 900  # 15 minutes — large designs need 5-10min to compile on CI
 
 
+@functools.cache
 def host_platform():
-    """'<ID>-<VERSION_ID>' from os-release, e.g. 'debian-12' — matches CI matrix names."""
+    """Tags that `expected_fail.platforms` matches against: os-release
+    '<ID>-<VERSION_ID>' (e.g. 'debian-12', as in CI matrix names) and the
+    clang++ major that RyuSim builds with (e.g. 'clang-14')."""
+    tags = set()
     try:
         info = platform.freedesktop_os_release()
+        tags.add(f"{info.get('ID', '')}-{info.get('VERSION_ID', '')}")
     except (OSError, AttributeError):  # AttributeError: Python < 3.10 (Rocky 9)
-        return ""
-    return f"{info.get('ID', '')}-{info.get('VERSION_ID', '')}"
+        pass
+    try:
+        out = subprocess.run(["clang++", "--version"], capture_output=True, text=True).stdout
+        if m := re.search(r"clang version (\d+)", out):
+            tags.add(f"clang-{m.group(1)}")
+    except FileNotFoundError:
+        pass
+    return frozenset(tags)
 
 
 def apply_expected_fail(result, design_path, host):
@@ -38,7 +51,7 @@ def apply_expected_fail(result, design_path, host):
             xfail = (yaml.safe_load(f) or {}).get("expected_fail") or {}
     except (FileNotFoundError, yaml.YAMLError):
         return
-    if xfail and host in xfail.get("platforms", [host]):
+    if xfail and ("platforms" not in xfail or host & set(xfail["platforms"])):
         result["expected_fail_reason"] = xfail.get("reason", "")
         if result["status"] == "passed":
             result["status"] = "failed"
