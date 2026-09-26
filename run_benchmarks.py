@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import platform
 import subprocess
 import sys
 import time
@@ -16,6 +17,32 @@ BENCHMARK_DIRS = {
     "cocotb": Path("cocotb_tests"),
 }
 DEFAULT_TIMEOUT = 900  # 15 minutes — large designs need 5-10min to compile on CI
+
+
+def host_platform():
+    """'<ID>-<VERSION_ID>' from os-release, e.g. 'debian-12' — matches CI matrix names."""
+    try:
+        info = platform.freedesktop_os_release()
+    except (OSError, AttributeError):  # AttributeError: Python < 3.10 (Rocky 9)
+        return ""
+    return f"{info.get('ID', '')}-{info.get('VERSION_ID', '')}"
+
+
+def apply_expected_fail(result, design_path, host):
+    """`expected_fail: {platforms: [...], reason: ...}` in config.yaml inverts the
+    check on those platforms — like run_tests.py's `expected: fail`, it tracks a
+    known RyuSim issue, and an unexpected pass means the issue was fixed."""
+    try:
+        with open(design_path / "config.yaml") as f:
+            xfail = (yaml.safe_load(f) or {}).get("expected_fail") or {}
+    except (FileNotFoundError, yaml.YAMLError):
+        return
+    if host in xfail.get("platforms", []):
+        result["expected_fail_reason"] = xfail.get("reason", "")
+        if result["status"] == "passed":
+            result["status"] = "failed"
+        elif result["status"] == "failed":
+            result["status"] = "expected_fail"
 
 
 def get_ryusim_version():
@@ -356,6 +383,7 @@ def main():
         print(f"Warning: expected ryusim {args.ryusim_version}, got {ryusim_version}", file=sys.stderr)
     timestamp = datetime.now(timezone.utc).isoformat()
 
+    host = host_platform()
     results = []
     for design in designs:
         result = run_benchmark(
@@ -365,6 +393,7 @@ def main():
             timeout_override=args.timeout,
             tags=[t.strip() for t in args.tags.split(",")] if args.tags else None,
         )
+        apply_expected_fail(result, design, host)
         results.append(result)
         if args.verbose:
             print(
@@ -376,6 +405,7 @@ def main():
         "total": len(results),
         "passed": sum(1 for r in results if r["status"] == "passed"),
         "failed": sum(1 for r in results if r["status"] == "failed"),
+        "expected_fail": sum(1 for r in results if r["status"] == "expected_fail"),
         "error": sum(1 for r in results if r["status"] == "error"),
         "ryusim_version": ryusim_version,
         "timestamp": timestamp,
